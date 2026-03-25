@@ -1,188 +1,336 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Piano Masterclass - Virtual Keyboard</title>
-<style>
-:root {
---primary: #1a1a1a;
---accent: #d4af37;
---bg: #f4f4f4;
---white-key: #ffffff;
---black-key: #333;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Encyclopedia & Piano Interactive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #fbbf24;
+            --secondary: #6366f1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --white-key: #ffffff;
+            --black-key: #1e293b;
+            --border: #e2e8f0;
+        }
 
-body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); }
-header { background: var(--primary); color: var(--accent); padding: 2rem; text-align: center; border-bottom: 4px solid var(--accent); }
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text-main); line-height: 1.6; }
 
-nav { display: flex; justify-content: center; background: #222; position: sticky; top: 0; z-index: 1000; }
-nav button { background: none; border: none; color: white; padding: 1rem 1.5rem; cursor: pointer; font-weight: bold; transition: 0.3s; }
-nav button.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+        /* --- Header --- */
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white; padding: 100px 20px; text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%);
+        }
+        header h1 { font-size: 3.8rem; margin: 0; letter-spacing: -2px; }
+        header h1 span { color: var(--accent); }
+        header p { opacity: 0.8; font-weight: 300; font-size: 1.3rem; margin-top: 10px; }
 
-.container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-.section { display: none; animation: fadeIn 0.5s; }
-.section.active { display: block; }
+        /* --- Nav --- */
+        nav {
+            display: flex; justify-content: center; background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 1000;
+            padding: 15px; border-bottom: 1px solid var(--border);
+        }
+        nav button {
+            background: none; border: none; padding: 12px 25px;
+            font-weight: 700; color: var(--primary); cursor: pointer;
+            transition: 0.3s; border-radius: 12px; margin: 0 5px;
+        }
+        nav button:hover { background: #f1f5f9; color: var(--secondary); }
+        nav button.active { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 
-/* STYLE BÀN PHÍM PIANO */
-.piano-container {
-display: flex;
-justify-content: center;
-background: #222;
-padding: 40px 20px;
-border-radius: 10px;
-box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-margin: 2rem 0;
-overflow-x: auto;
-}
+        .container { max-width: 1240px; margin: 50px auto; padding: 0 25px; }
 
-.piano { display: flex; position: relative; }
+        /* --- Piano Section --- */
+        .piano-outer {
+            background: #000; padding: 60px 20px; border-radius: 40px;
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.6); margin-bottom: 60px;
+            overflow-x: auto; border: 6px solid #334155;
+        }
+        .piano { display: flex; position: relative; width: 840px; margin: 0 auto; user-select: none; }
+        .key { transition: 0.1s; position: relative; cursor: pointer; }
+        .white-key {
+            width: 70px; height: 300px; background: var(--white-key);
+            border: 1px solid #cbd5e1; border-radius: 0 0 12px 12px;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 25px; font-weight: 800; color: #94a3b8; z-index: 1;
+        }
+        .white-key.active { background: #f8fafc; transform: translateY(6px); box-shadow: inset 0 12px 0 rgba(0,0,0,0.05); color: var(--primary); }
+        .black-key {
+            width: 48px; height: 180px; background: var(--black-key);
+            position: absolute; z-index: 2; margin-left: -24px;
+            border-radius: 0 0 8px 8px; color: #475569; font-size: 11px;
+            display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+        }
+        .black-key.active { background: #475569; transform: translateY(3px); }
 
-.key {
-position: relative;
-cursor: pointer;
-text-transform: uppercase;
-}
+        /* --- Content Layout --- */
+        .section { display: none; animation: slideUp 0.7s ease-out; }
+        .section.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 
-.white-key {
-width: 60px;
-height: 200px;
-background: var(--white-key);
-border: 1px solid #ccc;
-border-radius: 0 0 5px 5px;
-display: flex;
-align-items: flex-end;
-justify-content: center;
-padding-bottom: 10px;
-font-weight: bold;
-z-index: 1;
-}
+        .card { background: var(--card-bg); padding: 40px; border-radius: 28px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); margin-bottom: 40px; border: 1px solid #f1f5f9; }
+        .card h2 { margin-top: 0; color: var(--secondary); font-size: 2rem; border-left: 8px solid var(--accent); padding-left: 20px; margin-bottom: 30px; letter-spacing: -1px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 35px; }
 
-.white-key:active, .white-key.active { background: #e0e0e0; box-shadow: inset 0 5px 10px rgba(0,0,0,0.2); }
+        /* --- Data Display --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
+        th { text-align: left; padding: 15px; background: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 0.95rem; }
+        .tag { display: inline-block; padding: 5px 15px; border-radius: 30px; font-size: 12px; font-weight: 800; background: #e0e7ff; color: #4338ca; text-transform: uppercase; margin-bottom: 15px; }
+        
+        .box-info { background: #f1f5f9; border-radius: 15px; padding: 20px; margin-top: 15px; border-left: 5px solid var(--secondary); }
+        .box-info h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem; }
 
-.black-key {
-width: 40px;
-height: 120px;
-background: var(--black-key);
-color: white;
-position: absolute;
-z-index: 2;
-margin-left: -20px;
-border-radius: 0 0 3px 3px;
-display: flex;
-align-items: flex-end;
-justify-content: center;
-padding-bottom: 5px;
-font-size: 0.8rem;
-}
-
-.black-key:active, .black-key.active { background: #555; }
-
-/* TABLE & BOX */
-.box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 1rem; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-table th, table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-table th { background: var(--primary); color: white; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-</style>
+        footer { text-align: center; padding: 80px; color: #94a3b8; font-size: 1rem; border-top: 1px solid var(--border); }
+    </style>
 </head>
 <body>
 
 <header>
-<h1>HỌC PIANO TRỰC TUYẾN</h1>
-<p>Lý thuyết tổng hợp & Bàn phím tương tác</p>
+    <h1>Music <span>Encyclopedia</span></h1>
+    <p>Hệ thống tra cứu Nhạc lý, Sắc thái & Kỹ thuật Thanh nhạc toàn diện</p>
 </header>
 
-<nav id="navbar">
-<button onclick="showPage('keyboard-tab')" class="active">Bàn phím ảo</button>
-<button onclick="showPage('theory-tab')">Lý thuyết & Sắc thái</button>
-<button onclick="showPage('vocal-tab')">Thanh nhạc</button>
+<nav>
+    <button onclick="showTab('piano-tab')" class="active">🎹 Nhạc Cụ</button>
+    <button onclick="showTab('theory-tab')">📚 Nhạc Lý Chuyên Sâu</button>
+    <button onclick="showTab('expression-tab')">🎨 Sắc Thái Biểu Diễn</button>
+    <button onclick="showTab('vocal-tab')">🎙️ Thanh Nhạc Học</button>
 </nav>
 
 <div class="container">
 
-<div id="keyboard-tab" class="section active">
-<h2>Bàn phím tương tác</h2>
-<p>Click vào các phím để thử âm thanh và làm quen với vị trí nốt nhạc (Quãng C4 - C5).</p>
+    <div id="piano-tab" class="section active">
+        <div class="piano-outer">
+            <div class="piano" id="keyboard">
+                <div class="key white-key" data-note="C4" data-freq="261.63">C</div>
+                <div class="key black-key" style="left: 70px;" data-note="C#4" data-freq="277.18">C#</div>
+                <div class="key white-key" data-note="D4" data-freq="293.66">D</div>
+                <div class="key black-key" style="left: 140px;" data-note="D#4" data-freq="311.13">D#</div>
+                <div class="key white-key" data-note="E4" data-freq="329.63">E</div>
+                <div class="key white-key" data-note="F4" data-freq="349.23">F</div>
+                <div class="key black-key" style="left: 280px;" data-note="F#4" data-freq="369.99">F#</div>
+                <div class="key white-key" data-note="G4" data-freq="392.00">G</div>
+                <div class="key black-key" style="left: 350px;" data-note="G#4" data-freq="415.30">G#</div>
+                <div class="key white-key" data-note="A4" data-freq="440.00">A</div>
+                <div class="key black-key" style="left: 420px;" data-note="A#4" data-freq="466.16">A#</div>
+                <div class="key white-key" data-note="B4" data-freq="493.88">B</div>
+                <div class="key white-key" data-note="C5" data-freq="523.25">C5</div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h3>🎮 Keyboard Mapping</h3>
+                <p><strong>Nốt trắng:</strong> A - S - D - F - G - H - J - K</p>
+                <p><strong>Nốt đen:</strong> W - E - T - Y - U</p>
+                <div class="box-info">Sử dụng bàn phím máy tính để trải nghiệm như đàn thật.</div>
+            </div>
+            <div class="card">
+                <h3>🔍 Tần số âm thanh</h3>
+                <p>Nốt <strong>A4</strong> chuẩn quốc tế có tần số <strong>440Hz</strong>. Mọi nhạc cụ trên thế giới đều lấy nốt này làm mốc để lên dây đàn.</p>
+            </div>
+        </div>
+    </div>
 
-<div class="piano-container">
-<div class="piano">
-<div class="key white-key" onclick="playNote(261.63, 'C')">C</div>
-<div class="key black-key" style="left: 60px;" onclick="playNote(277.18, 'C#')">C#</div>
-<div class="key white-key" onclick="playNote(293.66, 'D')">D</div>
-<div class="key black-key" style="left: 120px;" onclick="playNote(311.13, 'D#')">D#</div>
-<div class="key white-key" onclick="playNote(329.63, 'E')">E</div>
+    <div id="theory-tab" class="section">
+        <div class="card">
+            <h2>1. Cung & Nửa Cung (Steps & Semitones)</h2>
+            <p>Đây là đơn vị đo lường khoảng cách giữa các nốt nhạc:</p>
+            <div class="grid">
+                <div class="box-info">
+                    <h4>Nửa cung (Semitone)</h4>
+                    <p>Khoảng cách ngắn nhất giữa 2 nốt (ví dụ: E lên F, hoặc từ phím trắng lên phím đen kế bên).</p>
+                </div>
+                <div class="box-info">
+                    <h4>Một cung (Whole Tone)</h4>
+                    <p>Bằng 2 nửa cung cộng lại (ví dụ: C lên D).</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>2. Âm giai (Scales)</h2>
+                <p><span class="tag">Major Scale</span> Cấu tạo: 1 - 1 - 1/2 - 1 - 1 - 1 - 1/2. Tạo cảm giác tươi sáng, quyết liệt.</p>
+                <p><span class="tag">Minor Scale</span> Cấu tạo: 1 - 1/2 - 1 - 1 - 1/2 - 1 - 1. Tạo cảm giác u buồn, sâu lắng.</p>
+                <div class="box-info">
+                    <h4>Vòng tròn bậc 5</h4>
+                    <p>Hệ thống giúp xác định các dấu hóa trong một giọng (Key). Giúp người chơi nhạc chuyển tông dễ dàng.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h2>3. Quãng & Hợp âm (Intervals & Chords)</h2>
+                <table>
+                    <tr><th>Tên Quãng</th><th>Khoảng cách</th></tr>
+                    <tr><td>Quãng 3 Trưởng</td><td>2 cung (Vui)</td></tr>
+                    <tr><td>Quãng 3 Thứ</td><td>1.5 cung (Buồn)</td></tr>
+                    <tr><td>Quãng 4 Đúng</td><td>2.5 cung (Ổn định)</td></tr>
+                    <tr><td>Quãng 5 Đúng</td><td>3.5 cung (Rỗng)</td></tr>
+                </table>
+                <p style="margin-top:15px;"><strong>Hợp âm 7:</strong> Thêm nốt bậc 7 vào hợp âm 3 nốt để tạo sự dẫn dắt (Ví dụ: G7 dẫn về C).</p>
+            </div>
+        </div>
+    </div>
 
-<div class="key white-key" onclick="playNote(349.23, 'F')">F</div>
-<div class="key black-key" style="left: 240px;" onclick="playNote(369.99, 'F#')">F#</div>
-<div class="key white-key" onclick="playNote(392.00, 'G')">G</div>
-<div class="key black-key" style="left: 300px;" onclick="playNote(415.30, 'G#')">G#</div>
-<div class="key white-key" onclick="playNote(440.00, 'A')">A</div>
-<div class="key black-key" style="left: 360px;" onclick="playNote(466.16, 'A#')">A#</div>
-<div class="key white-key" onclick="playNote(493.88, 'B')">B</div>
-<div class="key white-key" onclick="playNote(523.25, 'C2')">C</div>
-</div>
-</div>
-<p style="text-align: center; color: #666;">* Lưu ý: Âm thanh được mô phỏng bằng tần số sóng điện tử (Web Audio API).</p>
+    <div id="expression-tab" class="section">
+        <div class="card">
+            <h2>Hệ thống Thuật ngữ Ý (Italian Terms)</h2>
+            <div class="grid">
+                <div>
+                    <span class="tag">Cường độ (Dynamics)</span>
+                    <table>
+                        <tr><td><strong>ppp / fff</strong></td><td>Cực kỳ nhỏ / Cực kỳ mạnh</td></tr>
+                        <tr><td><strong>Crescendo</strong></td><td>To dần lên (<)</td></tr>
+                        <tr><td><strong>Decrescendo</strong></td><td>Nhỏ dần đi (>)</td></tr>
+                        <tr><td><strong>Sforzando (sfz)</strong></td><td>Nhấn mạnh đột ngột</td></tr>
+                    </table>
+                </div>
+                <div>
+                    <span class="tag">Tốc độ (Tempo Changes)</span>
+                    <table>
+                        <tr><td><strong>Accelerando</strong></td><td>Nhanh dần lên</td></tr>
+                        <tr><td><strong>Ritardando</strong></td><td>Chậm dần lại</td></tr>
+                        <tr><td><strong>A Tempo</strong></td><td>Trở về tốc độ ban đầu</td></tr>
+                        <tr><td><strong>Rubato</strong></td><td>Tốc độ tự do theo cảm xúc</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Kỹ thuật & Tâm trạng (Moods)</h2>
+            <div class="grid">
+                <div class="box-info">
+                    <h4>Articulations (Ngắt tiếng)</h4>
+                    <ul>
+                        <li><strong>Staccato:</strong> Đánh nẩy, ngắn gọn.</li>
+                        <li><strong>Legato:</strong> Đánh liền mạch, mượt mà.</li>
+                        <li><strong>Portato:</strong> Nửa ngắt nửa liền.</li>
+                    </ul>
+                </div>
+                <div class="box-info">
+                    <h4>Character (Tính chất)</h4>
+                    <ul>
+                        <li><strong>Appassionato:</strong> Say đắm, nồng nhiệt.</li>
+                        <li><strong>Con Brio:</strong> Sống động, rực rỡ.</li>
+                        <li><strong>Misterioso:</strong> Huyền bí, bí ẩn.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vocal-tab" class="section">
+        <div class="card">
+            <h2>Hệ thống Giọng hát (Voice Classification)</h2>
+            <div class="grid">
+                <table>
+                    <tr><th>Loại giọng</th><th>Tên gọi</th><th>Đặc điểm</th></tr>
+                    <tr><td>Nữ cao</td><td>Soprano</td><td>Sáng, kịch tính</td></tr>
+                    <tr><td>Nữ trầm</td><td>Alto</td><td>Dày, ấm áp</td></tr>
+                    <tr><td>Nam cao</td><td>Tenor</td><td>Vang, mạnh mẽ</td></tr>
+                    <tr><td>Nam trầm</td><td>Bass</td><td>Sâu, nặng</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>Kỹ thuật Bổ trợ</h2>
+                <div class="box-info">
+                    <h4>Cộng hưởng (Resonance)</h4>
+                    <p>Cách tận dụng các khoang rỗng trong cơ thể (mũi, miệng, ngực) để khuếch đại âm thanh mà không làm đau cổ họng.</p>
+                </div>
+                <div class="box-info">
+                    <h4>Vị trí âm thanh (Placement)</h4>
+                    <p>Hát làm sao để cảm nhận âm thanh "tập trung" ở vùng mặt, giúp giọng hát bay xa và bắt micro tốt hơn.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Bài tập Luyện thanh hàng ngày</h2>
+                <ol>
+                    <li><strong>Rung môi (Lip trill):</strong> Giúp thư giãn môi và điều phối hơi thở.</li>
+                    <li><strong>Hát nguyên âm (A-E-I-O-U):</strong> Giúp khẩu hình mở đúng cách.</li>
+                    <li><strong>Staccato luyện hơi:</strong> Hát các nốt ngắn để rèn luyện cơ bụng.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<div id="theory-tab" class="section">
-<div class="box">
-<h2>Ký hiệu sắc thái & Tốc độ</h2>
-<table>
-<tr><th>Ký hiệu</th><th>Ý nghĩa</th><th>Loại</th></tr>
-<tr><td><b>p</b> (Piano)</td><td>Nhỏ</td><td>Cường độ</td></tr>
-<tr><td><b>f</b> (Forte)</td><td>Mạnh / To</td><td>Cường độ</td></tr>
-<tr><td><b>rit.</b></td><td>Chậm dần</td><td>Tốc độ</td></tr>
-<tr><td><b>Staccato</b></td><td>Đánh nẩy nốt</td><td>Kỹ thuật</td></tr>
-<tr><td><b>Legato</b></td><td>Đánh liền tiếng</td><td>Kỹ thuật</td></tr>
-</table>
-</div>
-</div>
-
-<div id="vocal-tab" class="section">
-<div class="box">
-<h2>Kiến thức bổ trợ Thanh nhạc</h2>
-<ul>
-<li><strong>Khởi động giọng (Warm-up):</strong> Rung môi, luyện âm "Mi-Ma-Mo".</li>
-<li><strong>Cộng hưởng:</strong> Đưa âm thanh lên "mặt nạ" (hốc mũi, trán).</li>
-<li><strong>Quãng giọng:</strong> Piano giúp bạn xác định Note thấp nhất và cao nhất bạn có thể hát.</li>
-</ul>
-</div>
-</div>
-</div>
+<footer>
+    <p>&copy; 2026 Digital Music Academy | Nền tảng học tập âm nhạc tương tác hiện đại</p>
+</footer>
 
 <script>
-// Chuyển Tab
-function showPage(id) {
-document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-document.querySelectorAll('#navbar button').forEach(b => b.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-event.currentTarget.classList.add('active');
-}
+    // Audio Context
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// Logic phát âm thanh
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playNote(freq) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+    }
 
-function playNote(frequency, noteName) {
-const oscillator = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
+    // Interaction
+    document.querySelectorAll('.key').forEach(key => {
+        key.addEventListener('mousedown', () => {
+            playNote(key.dataset.freq);
+            key.classList.add('active');
+        });
+        key.addEventListener('mouseup', () => key.classList.remove('active'));
+        key.addEventListener('mouseleave', () => key.classList.remove('active'));
+    });
 
-oscillator.type = 'sine'; // Kiểu âm thanh (sine, square, sawtooth, triangle)
-oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+    // Tabs
+    function showTab(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.target.classList.add('active');
+    }
 
-gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+    // Computer Keyboard
+    const keyMap = {
+        'a': 261.63, 'w': 277.18, 's': 293.66, 'e': 311.13, 'd': 329.63,
+        'f': 349.23, 't': 369.99, 'g': 392.00, 'y': 415.30, 'h': 440.00,
+        'u': 466.16, 'j': 493.88, 'k': 523.25
+    };
 
-oscillator.connect(gainNode);
-gainNode.connect(audioCtx.destination);
+    window.addEventListener('keydown', (e) => {
+        const freq = keyMap[e.key.toLowerCase()];
+        if (freq) {
+            const keyEl = document.querySelector(`[data-freq="${freq}"]`);
+            if (keyEl && !keyEl.classList.contains('active')) {
+                playNote(freq);
+                keyEl.classList.add('active');
+            }
+        }
+    });
 
-oscillator.start();
-oscillator.stop(audioCtx.currentTime + 1);
-
-console.log("Playing note: " + noteName);
-}
+    window.addEventListener('keyup', (e) => {
+        const freq = keyMap[e.key.toLowerCase()];
+        if (freq) {
+            const keyEl = document.querySelector(`[data-freq="${freq}"]`);
+            if (keyEl) keyEl.classList.remove('active');
+        }
+    });
 </script>
 
 </body>
