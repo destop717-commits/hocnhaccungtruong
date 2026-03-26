@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Academy Pro - Hệ thống kiến thức toàn diện</title>
+    <title>Music Academy Pro - Full Encyclopedia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -17,19 +17,9 @@
 
         .serif { font-family: 'Playfair Display', serif; }
 
-        .nav-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
-        .nav-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2);
-        }
-
         .content-section {
             display: none;
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .content-section.active {
@@ -41,26 +31,28 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Piano Styles */
+        /* Piano Engine */
         .piano-container {
-            background: #1e293b;
-            padding: 2.5rem 1rem;
-            border-radius: 1.5rem;
-            overflow-x: auto;
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            padding: 3rem 1.5rem;
+            border-radius: 2.5rem;
             display: flex;
-            justify-content: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .piano-keys {
             display: flex;
             position: relative;
-            padding-bottom: 20px;
+            background: #111;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 0 #000;
         }
 
         .key {
-            border: 1px solid #cbd5e1;
-            border-radius: 0 0 8px 8px;
+            border-radius: 0 0 6px 6px;
             cursor: pointer;
             transition: all 0.1s;
             display: flex;
@@ -68,486 +60,391 @@
             justify-content: center;
             padding-bottom: 12px;
             font-weight: bold;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             user-select: none;
-            position: relative;
         }
 
         .white { 
-            width: 48px; 
-            height: 190px; 
-            background: white; 
-            z-index: 1; 
-            color: #94a3b8;
+            width: 40px; height: 180px; 
+            background: linear-gradient(to bottom, #fff 0%, #f3f4f6 100%); 
+            z-index: 1; border: 1px solid #d1d5db; margin: 0 1px;
         }
         
         .black { 
-            width: 32px; 
-            height: 115px; 
-            background: #111827; 
-            color: #64748b; 
-            margin-left: -16px; 
-            margin-right: -16px; 
-            z-index: 2; 
-            border: none; 
-            border-radius: 0 0 5px 5px;
+            width: 28px; height: 110px; 
+            background: linear-gradient(to bottom, #334155 0%, #020617 100%); 
+            color: white; margin-left: -14px; margin-right: -14px; 
+            z-index: 2; border-radius: 0 0 4px 4px;
         }
 
-        .white:active, .white.pressed { 
-            background: #f1f5f9; 
-            transform: translateY(3px);
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.05);
+        .white.pressed { background: #e2e8f0; transform: translateY(2px); box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+        .black.pressed { background: #475569; transform: translateY(2px); }
+
+        .theory-card {
+            @apply bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow;
         }
-        
-        .black:active, .black.pressed { 
-            background: #374151; 
-            transform: translateY(3px);
+
+        .term-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
         }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-900">
 
-    <nav class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="showSection('intro')">
-                <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-                    <i class="fas fa-music"></i>
-                </div>
-                <h1 class="font-bold text-xl tracking-tighter">MUSIC<span class="text-indigo-600">ACADEMY</span></h1>
+    <!-- NAVIGATION -->
+    <nav class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showSection('intro')">
+                <i class="fas fa-music text-indigo-600 text-2xl"></i>
+                <h1 class="font-black text-lg tracking-tighter">MUSIC<span class="text-indigo-600">百科全書</span></h1>
             </div>
-            <div class="hidden md:flex gap-4">
-                <button onclick="showSection('intro')" class="px-4 py-2 text-sm font-semibold hover:text-indigo-600 transition">Trang chủ</button>
-                <button onclick="showSection('piano')" class="px-4 py-2 text-sm font-semibold hover:text-indigo-600 transition">Phòng thực hành</button>
+            <div class="hidden md:flex gap-4 text-[11px] font-black uppercase tracking-widest">
+                <button onclick="showSection('theory')" class="hover:text-indigo-600">Lý thuyết</button>
+                <button onclick="showSection('harmony')" class="hover:text-indigo-600">Hòa âm</button>
+                <button onclick="showSection('terms')" class="hover:text-indigo-600">Thuật ngữ</button>
+                <button onclick="showSection('piano')" class="bg-indigo-600 text-white px-4 py-2 rounded-full">Thực hành</button>
             </div>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-6 py-12">
         
-        <!-- MỤC 0: GIỚI THIỆU -->
-        <section id="intro" class="content-section active text-center">
-            <div class="max-w-3xl mx-auto mb-16">
-                <h2 class="text-5xl font-black mb-8 serif italic">Hệ Thống Kiến Thức <br><span class="text-indigo-600">Âm Nhạc Toàn Diện</span></h2>
-                <p class="text-lg text-slate-500 leading-relaxed mb-10">
-                    Khám phá nền tảng lý thuyết âm nhạc được hệ thống hóa một cách khoa học. Đi từ những ký hiệu cơ bản nhất đến cách xây dựng hòa âm phức tạp và kỹ thuật biểu đạt cảm xúc.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                <div onclick="showSection('basic')" class="nav-card bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-left">
-                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 text-xl"><i class="fas fa-book-open"></i></div>
-                    <h3 class="font-bold text-lg mb-2">Nhạc Lý Cơ Bản</h3>
-                    <p class="text-sm text-slate-500">Tìm hiểu về nốt nhạc, khuông nhạc, trường độ và các ký hiệu sơ khai.</p>
-                </div>
-
-                <div onclick="showSection('harmony')" class="nav-card bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-left">
-                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 text-xl"><i class="fas fa-layer-group"></i></div>
-                    <h3 class="font-bold text-lg mb-2">Hòa Âm & Thang Âm</h3>
-                    <p class="text-sm text-slate-500">Cấu trúc hợp âm, âm giai trưởng thứ và các vòng hòa thanh thực tế.</p>
-                </div>
-
-                <div onclick="showSection('expression')" class="nav-card bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-left">
-                    <div class="w-14 h-14 bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center mb-6 text-xl"><i class="fas fa-feather-alt"></i></div>
-                    <h3 class="font-bold text-lg mb-2">Sắc Thái Âm Nhạc</h3>
-                    <p class="text-sm text-slate-500">Cường độ to nhỏ, tốc độ nhịp điệu và các kỹ thuật diễn tả tâm hồn.</p>
-                </div>
-            </div>
-
-            <div class="mt-12">
-                <button onclick="showSection('piano')" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-indigo-700 transition flex items-center gap-3 mx-auto">
-                    <i class="fas fa-keyboard"></i> Thử nghiệm trên bàn phím Piano ảo
-                </button>
-            </div>
-        </section>
-
-        <!-- MỤC 1: NHẠC LÝ CƠ BẢN -->
-        <section id="basic" class="content-section">
-            <button onclick="showSection('intro')" class="mb-8 text-indigo-600 font-bold flex items-center gap-2">
-                <i class="fas fa-arrow-left"></i> Quay lại trang chủ
-            </button>
-            <h2 class="text-4xl font-black mb-8 serif">I. Nhạc Lý Cơ Bản</h2>
-            
-            <div class="space-y-8">
-                <!-- 1. Hệ thống cao độ -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-4 text-indigo-600">1. Hệ thống cao độ</h3>
-                    <p class="mb-4">Âm nhạc sử dụng 7 nốt gốc: <b>Do, Re, Mi, Fa, Sol, La, Si</b> (tương ứng với các chữ cái C, D, E, F, G, A, B). Các nốt này được sắp xếp và viết trên <b>Khuông nhạc</b> gồm 5 dòng kẻ và 4 khe nằm song song cách đều nhau.</p>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="p-5 bg-slate-50 rounded-xl border-l-4 border-indigo-500">
-                            <strong class="block mb-1">Khóa Sol (Treble Clef):</strong>
-                            <p class="text-sm">Bắt đầu từ dòng kẻ thứ 2. Dùng cho các nhạc cụ có âm sắc cao như Piano (tay phải), Sáo, Violin.</p>
-                        </div>
-                        <div class="p-5 bg-slate-50 rounded-xl border-l-4 border-indigo-300">
-                            <strong class="block mb-1">Khóa Fa (Bass Clef):</strong>
-                            <p class="text-sm">Bắt đầu từ dòng kẻ thứ 4. Dùng cho các nhạc cụ có âm trầm như Piano (tay trái), Cello, Bass.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. Trường độ nốt nhạc -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-4 text-indigo-600">2. Trường độ nốt nhạc (Duration)</h3>
-                    <p class="mb-4">Trường độ là giá trị thời gian của âm thanh. Trong nhạc lý, độ dài của âm thanh được quy định bằng các hình dạng nốt nhạc khác nhau.</p>
-                    
-                    <div class="p-5 bg-indigo-50 rounded-2xl mb-6 text-sm">
-                        <p class="font-bold mb-2">Cấu tạo nốt nhạc gồm 2 bộ phận:</p>
-                        <ul class="list-disc pl-6 space-y-2">
-                            <li><b>Thân nốt nhạc (Notehead):</b> Vị trí nốt trên khuông nhạc xác định cao độ.</li>
-                            <li><b>Đuôi và dấu móc (Stem & Flag):</b> Dùng để phân chia giá trị thời gian nhỏ hơn.</li>
-                        </ul>
-                    </div>
-
-                    <p class="mb-4 font-bold italic text-slate-700 underline">Quy chuẩn tính toán:</p>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 text-sm">
-                        <div class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-                            <span class="block text-3xl mb-1">𝅝</span>
-                            <b>Nốt tròn</b>: 4 phách (bằng 2 trắng)
-                        </div>
-                        <div class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-                            <span class="block text-3xl mb-1">𝅗𝅥</span>
-                            <b>Nốt trắng</b>: 2 phách (bằng 2 đen)
-                        </div>
-                        <div class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-                            <span class="block text-3xl mb-1">𝅘𝅥</span>
-                            <b>Nốt đen</b>: 1 phách (bằng 2 đơn)
-                        </div>
-                        <div class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-                            <span class="block text-3xl mb-1">𝅘𝅥𝅮</span>
-                            <b>Nốt móc đơn</b>: 1/2 phách
-                        </div>
-                        <div class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-                            <span class="block text-3xl mb-1">𝅘𝅥𝅯</span>
-                            <b>Nốt móc kép</b>: 1/4 phách
-                        </div>
-                        <div class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm text-center">
-                            <span class="block text-3xl mb-1">𝅘𝅥𝅰</span>
-                            <b>Nốt móc ba</b>: 1/8 phách
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Cung và Nửa cung -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-4 text-indigo-600">3. Đơn vị đo cao độ: Cung & Nửa cung</h3>
-                    <div class="space-y-4">
-                        <div class="p-5 bg-slate-50 rounded-xl">
-                            <h4 class="font-bold mb-2 text-indigo-700">Cung (Whole-step)</h4>
-                            <p class="text-sm leading-relaxed">Khoảng cách giữa các nốt nhạc chính (ví dụ C đến D, D đến E). Một cung bằng 2 nửa cung.</p>
-                        </div>
-                        <div class="p-5 bg-slate-50 rounded-xl">
-                            <h4 class="font-bold mb-2 text-indigo-700">Nửa cung (Half-step)</h4>
-                            <p class="text-sm leading-relaxed">Đơn vị đo cao độ nhỏ nhất trong âm nhạc phương Tây. Lưu ý đặc biệt: <b>Giữa Mi (E) - Fa (F) và Si (B) - Do (C) chỉ cách nhau 1/2 cung.</b></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. Dấu hóa -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-4 text-indigo-600">4. Dấu hóa (Accidentals)</h3>
-                    <p class="text-sm mb-6">Dấu hóa dùng để thay đổi cao độ nốt nhạc tạm thời hoặc lâu dài.</p>
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <div class="p-6 bg-slate-50 rounded-2xl text-center border border-slate-100">
-                            <div class="text-4xl mb-3 text-indigo-600 font-serif">♯</div>
-                            <p class="font-bold">Dấu thăng (Sharp)</p>
-                            <p class="text-xs text-slate-500 mt-1 italic">Nâng nốt lên 1/2 cung.</p>
-                        </div>
-                        <div class="p-6 bg-slate-50 rounded-2xl text-center border border-slate-100">
-                            <div class="text-4xl mb-3 text-indigo-600 font-serif">♭</div>
-                            <p class="font-bold">Dấu giáng (Flat)</p>
-                            <p class="text-xs text-slate-500 mt-1 italic">Hạ nốt xuống 1/2 cung.</p>
-                        </div>
-                        <div class="p-6 bg-slate-50 rounded-2xl text-center border border-slate-100">
-                            <div class="text-4xl mb-3 text-indigo-600 font-serif">♮</div>
-                            <p class="font-bold">Dấu bình (Natural)</p>
-                            <p class="text-xs text-slate-500 mt-1 italic">Hủy bỏ dấu thăng/giáng.</p>
-                        </div>
-                    </div>
+        <!-- INTRO SECTION -->
+        <section id="intro" class="content-section active">
+            <div class="text-center py-20">
+                <h2 class="text-6xl font-black serif italic mb-6">Kiến thức âm nhạc <span class="text-indigo-600">không giới hạn.</span></h2>
+                <p class="text-slate-500 text-xl max-w-2xl mx-auto mb-10">Tài liệu tổng hợp chi tiết nhất về nhạc lý cổ điển và hiện đại, thiết kế dành cho người tự học và nghiên cứu chuyên sâu.</p>
+                <div class="flex justify-center gap-4">
+                    <button onclick="showSection('theory')" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold">Khám phá ngay</button>
                 </div>
             </div>
         </section>
 
-        <!-- MỤC 2: HÒA ÂM & THANG ÂM (KHÔI PHỤC TOÀN BỘ) -->
-        <section id="harmony" class="content-section">
-            <button onclick="showSection('intro')" class="mb-8 text-indigo-600 font-bold flex items-center gap-2"><i class="fas fa-arrow-left"></i> Quay lại</button>
-            <h2 class="text-4xl font-black mb-8 serif">II. Hòa Âm & Thang Âm</h2>
+        <!-- SECTION I: LÝ THUYẾT CHI TIẾT -->
+        <section id="theory" class="content-section">
+            <h2 class="text-4xl font-black serif mb-10 border-l-8 border-indigo-600 pl-6">I. Nhạc lý Nâng cao</h2>
             
-            <div class="space-y-8">
-                <!-- Quãng -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-6 text-emerald-600">1. Quãng (Intervals)</h3>
-                    <p class="text-sm mb-4">Quãng là khoảng cách về cao độ giữa hai nốt nhạc vang lên lần lượt (quãng giai điệu) hoặc cùng lúc (quãng hòa âm).</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                        <div class="p-3 bg-slate-50 rounded-lg"><b>Quãng 2 Trưởng:</b> 1 cung</div>
-                        <div class="p-3 bg-slate-50 rounded-lg"><b>Quãng 3 Trưởng:</b> 2 cung</div>
-                        <div class="p-3 bg-slate-50 rounded-lg"><b>Quãng 4 Đúng:</b> 2.5 cung</div>
-                        <div class="p-3 bg-slate-50 rounded-lg"><b>Quãng 5 Đúng:</b> 3.5 cung</div>
-                    </div>
-                </div>
-
-                <!-- Âm Giai -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-6 text-emerald-600">2. Âm Giai (Scales)</h3>
+            <div class="space-y-10">
+                <!-- 1. Cao độ -->
+                <div class="theory-card">
+                    <h3 class="text-xl font-black text-indigo-600 mb-4 uppercase tracking-tighter">1. Cao độ & Hệ thống ký hiệu</h3>
                     <div class="grid md:grid-cols-2 gap-8">
-                        <div>
-                            <h4 class="font-bold text-blue-700 mb-3 border-b pb-2">Âm giai Trưởng (Major Scale)</h4>
-                            <p class="text-xs leading-relaxed mb-4">Đặc điểm: Tươi sáng, ổn định. Công thức: <b>1 - 1 - 1/2 - 1 - 1 - 1 - 1/2</b></p>
-                            <div class="p-4 bg-blue-50 rounded-xl font-mono text-xs">
-                                Ví dụ C Major: C - D - E - F - G - A - B - C
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-700 mb-3 border-b pb-2">Âm giai Thứ (Minor Scale)</h4>
-                            <p class="text-xs leading-relaxed mb-4">Đặc điểm: U buồn, sâu lắng. Công thức (Thứ tự nhiên): <b>1 - 1/2 - 1 - 1 - 1/2 - 1 - 1</b></p>
-                            <div class="p-4 bg-slate-100 rounded-xl font-mono text-xs">
-                                Ví dụ A Minor: A - B - C - D - E - F - G - A
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hợp Âm -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 class="text-2xl font-bold mb-6 text-emerald-600">3. Hợp Âm (Chords)</h3>
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <div class="p-5 border border-slate-100 rounded-2xl shadow-sm bg-white">
-                            <b class="text-indigo-600 block mb-2">Hợp âm Trưởng (Major)</b>
-                            <p class="text-xs text-slate-500">Cấu tạo: 1 - 3 - 5 (Quãng 3 Trưởng + Quãng 3 Thứ)</p>
-                            <p class="mt-2 text-[10px] italic">Cảm giác: Vui tươi, sáng sủa.</p>
-                        </div>
-                        <div class="p-5 border border-slate-100 rounded-2xl shadow-sm bg-white">
-                            <b class="text-indigo-600 block mb-2">Hợp âm Thứ (Minor)</b>
-                            <p class="text-xs text-slate-500">Cấu tạo: 1 - b3 - 5 (Quãng 3 Thứ + Quãng 3 Trưởng)</p>
-                            <p class="mt-2 text-[10px] italic">Cảm giác: Buồn, tâm trạng.</p>
-                        </div>
-                        <div class="p-5 border border-slate-100 rounded-2xl shadow-sm bg-white">
-                            <b class="text-indigo-600 block mb-2">Hợp âm 7 (7th Chords)</b>
-                            <p class="text-xs text-slate-500">Thêm nốt bậc 7 (ví dụ Cmaj7: C-E-G-B)</p>
-                            <p class="mt-2 text-[10px] italic">Cảm giác: Hiện đại, jazz, đầy đặn.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kỹ thuật hòa âm -->
-                <div class="bg-indigo-900 p-8 rounded-3xl text-white">
-                    <h3 class="text-2xl font-bold mb-6">4. Ứng dụng Hòa âm thực tế</h3>
-                    <div class="grid md:grid-cols-2 gap-6 text-sm">
-                        <div class="space-y-4">
-                            <p class="leading-relaxed opacity-90">Hòa âm là nghệ thuật kết hợp các âm thanh đồng thời. Một bài hát hay không chỉ cần giai điệu đẹp mà còn cần một hệ thống hợp âm nâng đỡ (vòng hòa thanh).</p>
-                            <div class="p-4 bg-white/10 rounded-xl border border-white/20">
-                                <b>Vòng hòa thanh phổ biến (I - V - vi - IV):</b> Đây là vòng hợp âm "thần thánh" xuất hiện trong 80% các bản nhạc Pop hiện đại.
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-white/10 rounded-xl border border-white/20">
-                                <b>Giải kết (Cadence):</b> Cách kết thúc một câu nhạc để tạo cảm giác trọn vẹn (V về I) hoặc dang dở để tiếp nối.
-                            </div>
-                            <div class="p-4 bg-white/10 rounded-xl border border-white/20">
-                                <b>Chuyển soạn (Voicing):</b> Cách sắp xếp các nốt trong hợp âm ở các quãng tám khác nhau để tạo màu sắc riêng.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- MỤC 3: SẮC THÁI ÂM NHẠC (KHÔI PHỤC TOÀN BỘ) -->
-        <section id="expression" class="content-section">
-            <button onclick="showSection('intro')" class="mb-8 text-indigo-600 font-bold flex items-center gap-2"><i class="fas fa-arrow-left"></i> Quay lại</button>
-            <h2 class="text-4xl font-black mb-8 serif">III. Sắc Thái Âm Nhạc</h2>
-            
-            <div class="grid lg:grid-cols-3 gap-8">
-                <!-- Cường độ (Dynamics) -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xl font-bold mb-6 text-pink-600 border-b pb-2">Cường Độ (Dynamics)</h3>
-                    <p class="text-xs text-slate-500 mb-4 italic">Biểu thị độ to/nhỏ của âm thanh</p>
-                    <ul class="space-y-4 text-sm">
-                        <li class="flex justify-between border-b border-dashed pb-2">
-                            <span class="font-bold font-serif italic text-lg">pp</span>
-                            <span>Pianissimo (Rất nhỏ)</span>
-                        </li>
-                        <li class="flex justify-between border-b border-dashed pb-2">
-                            <span class="font-bold font-serif italic text-lg">p</span>
-                            <span>Piano (Nhỏ)</span>
-                        </li>
-                        <li class="flex justify-between border-b border-dashed pb-2">
-                            <span class="font-bold font-serif italic text-lg">mp</span>
-                            <span>Mezzo-piano (Nhỏ vừa)</span>
-                        </li>
-                        <li class="flex justify-between border-b border-dashed pb-2">
-                            <span class="font-bold font-serif italic text-lg">mf</span>
-                            <span>Mezzo-forte (Mạnh vừa)</span>
-                        </li>
-                        <li class="flex justify-between border-b border-dashed pb-2">
-                            <span class="font-bold font-serif italic text-lg">f</span>
-                            <span>Forte (Mạnh)</span>
-                        </li>
-                        <li class="flex justify-between border-b border-dashed pb-2">
-                            <span class="font-bold font-serif italic text-lg">ff</span>
-                            <span>Fortissimo (Rất mạnh)</span>
-                        </li>
-                        <li class="flex justify-between bg-pink-50 p-2 rounded">
-                            <span class="font-bold font-serif italic text-lg"><</span>
-                            <span>Crescendo (Mạnh dần)</span>
-                        </li>
-                        <li class="flex justify-between bg-pink-50 p-2 rounded">
-                            <span class="font-bold font-serif italic text-lg">></span>
-                            <span>Decrescendo (Nhỏ dần)</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Nhịp độ (Tempo) -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xl font-bold mb-6 text-pink-600 border-b pb-2">Nhịp Độ (Tempo)</h3>
-                    <p class="text-xs text-slate-500 mb-4 italic">Tốc độ của bản nhạc (BPM)</p>
-                    <div class="space-y-3 text-sm">
-                        <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-pink-400">
-                            <b>Grave:</b> Chậm, trang trọng (40-45 BPM)
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-pink-400">
-                            <b>Adagio:</b> Rất thong thả (66-76 BPM)
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-pink-400">
-                            <b>Andante:</b> Nhịp đi bộ (76-108 BPM)
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-pink-400">
-                            <b>Moderato:</b> Vừa phải (108-120 BPM)
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-pink-400">
-                            <b>Allegro:</b> Nhanh, vui vẻ (120-168 BPM)
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-pink-400">
-                            <b>Presto:</b> Rất nhanh (168-200 BPM)
-                        </div>
-                        <div class="p-3 bg-pink-100/50 rounded-lg italic">
-                            <b>Ritardando:</b> Chậm dần lại (rit.)
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Diễn tả (Articulation) -->
-                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xl font-bold mb-6 text-pink-600 border-b pb-2">Diễn Tả & Kỹ Thuật</h3>
-                    <div class="space-y-6 text-sm">
-                        <div>
-                            <b class="text-pink-700 block mb-2 underline">Cách chơi nốt (Articulation):</b>
-                            <ul class="list-disc pl-5 space-y-3">
-                                <li><b>Legato:</b> Liên kết các nốt nhạc một cách mượt mà không có khoảng lặng.</li>
-                                <li><b>Staccato:</b> Chơi các nốt ngắn, nẩy, tách biệt hoàn toàn nhau.</li>
-                                <li><b>Tenuto:</b> Giữ nốt nhạc đúng hoặc hơi quá trường độ quy định.</li>
-                                <li><b>Accent:</b> Nhấn mạnh vào nốt nhạc chỉ định.</li>
+                        <div class="space-y-3">
+                            <p class="font-bold text-slate-700">1.1. Khuông nhạc & Khóa:</p>
+                            <ul class="text-sm space-y-2 text-slate-600">
+                                <li>• <b>Khóa Sol (Treble Clef):</b> Dành cho âm cao. Nốt G nằm trên dòng kẻ thứ 2.</li>
+                                <li>• <b>Khóa Fa (Bass Clef):</b> Dành cho âm trầm. Nốt F nằm trên dòng kẻ thứ 4.</li>
+                                <li>• <b>Khuông nhạc tổng hợp (Grand Staff):</b> Kết hợp cả hai khóa, dùng cho Piano.</li>
                             </ul>
                         </div>
-                        <div class="p-4 bg-pink-50 rounded-2xl italic border border-pink-100">
-                            "Kỹ thuật là đôi chân để đi, nhưng sắc thái chính là đôi cánh để bay lên trong âm nhạc."
+                        <div class="space-y-3">
+                            <p class="font-bold text-slate-700">1.2. Dấu hóa (Accidentals):</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2 bg-slate-50 rounded"><b>♯ Sharp:</b> Tăng 1/2 cung.</div>
+                                <div class="p-2 bg-slate-50 rounded"><b>♭ Flat:</b> Giảm 1/2 cung.</div>
+                                <div class="p-2 bg-slate-50 rounded"><b>𝄪 Double Sharp:</b> Tăng 1 cung.</div>
+                                <div class="p-2 bg-slate-50 rounded"><b>𝄫 Double Flat:</b> Giảm 1 cung.</div>
+                                <div class="p-2 bg-slate-100 rounded col-span-2"><b>♮ Natural:</b> Hủy bỏ mọi tác dụng dấu hóa trước đó.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Nhịp thức -->
+                <div class="theory-card">
+                    <h3 class="text-xl font-black text-indigo-600 mb-4 uppercase tracking-tighter">2. Nhịp thức & Tiết tấu (Time Signatures)</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="p-4 bg-indigo-50 rounded-xl">
+                            <h4 class="font-black text-sm mb-2">Nhịp Đơn (Simple)</h4>
+                            <p class="text-xs text-slate-600">Mỗi phách chia làm 2 phần bằng nhau. <br><br>
+                            <b>2/4:</b> 2 phách (Mạnh - Nhẹ)<br>
+                            <b>3/4:</b> 3 phách (Mạnh - Nhẹ - Nhẹ)<br>
+                            <b>4/4:</b> 4 phách (Mạnh - Nhẹ - Mạnh vừa - Nhẹ)</p>
+                        </div>
+                        <div class="p-4 bg-emerald-50 rounded-xl">
+                            <h4 class="font-black text-sm mb-2">Nhịp Phức (Compound)</h4>
+                            <p class="text-xs text-slate-600">Mỗi phách chia làm 3 phần bằng nhau (nốt móc đơn). <br><br>
+                            <b>6/8:</b> 2 phách chính (Mạnh - Nhẹ)<br>
+                            <b>9/8:</b> 3 phách chính (M - N - N)<br>
+                            <b>12/8:</b> 4 phách chính (M - N - MV - N)</p>
+                        </div>
+                        <div class="p-4 bg-amber-50 rounded-xl">
+                            <h4 class="font-black text-sm mb-2">Nhịp Hỗn Hợp (Odd)</h4>
+                            <p class="text-xs text-slate-600">Sự kết hợp không đều giữa nhịp 2 và 3.<br><br>
+                            <b>5/4:</b> (2+3) hoặc (3+2)<br>
+                            <b>7/4:</b> (3+4) hoặc (4+3)<br>
+                            Tạo cảm giác "khuyết" hoặc thúc giục.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Quãng -->
+                <div class="theory-card">
+                    <h3 class="text-xl font-black text-indigo-600 mb-4 uppercase tracking-tighter">3. Quãng (Intervals)</h3>
+                    <div class="overflow-x-auto text-xs">
+                        <table class="w-full text-left">
+                            <tr class="bg-slate-100 font-bold">
+                                <th class="p-3">Số thứ tự</th>
+                                <th class="p-3">Quãng Thứ (Minor)</th>
+                                <th class="p-3">Quãng Trưởng (Major)</th>
+                                <th class="p-3">Quãng Đúng (Perfect)</th>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-bold">Bậc 2</td><td class="p-3 italic">1/2 cung (m2)</td><td class="p-3 italic">1 cung (M2)</td><td>-</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-bold">Bậc 3</td><td class="p-3 italic">1.5 cung (m3)</td><td class="p-3 italic">2 cung (M3)</td><td>-</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-bold">Bậc 4</td><td>-</td><td>-</td><td class="p-3 italic text-indigo-600 font-bold">2.5 cung (P4)</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-bold">Bậc 5</td><td>-</td><td>-</td><td class="p-3 italic text-indigo-600 font-bold">3.5 cung (P5)</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-bold">Bậc 6</td><td class="p-3 italic">4 cung (m6)</td><td class="p-3 italic">4.5 cung (M6)</td><td>-</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-bold">Bậc 7</td><td class="p-3 italic">5 cung (m7)</td><td class="p-3 italic">5.5 cung (M7)</td><td>-</td>
+                            </tr>
+                        </table>
+                        <p class="mt-4 p-3 bg-red-50 text-red-700 rounded"><b>Quãng Tăng (Augmented) & Giảm (Diminished):</b> Quãng Đúng/Trưởng tăng thêm 1/2 cung = Tăng. Quãng Đúng/Thứ giảm bớt 1/2 cung = Giảm.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION II: HÒA ÂM HỌC CHI TIẾT -->
+        <section id="harmony" class="content-section">
+            <h2 class="text-4xl font-black serif mb-10 border-l-8 border-emerald-600 pl-6">II. Hòa âm & Công năng</h2>
+
+            <div class="space-y-8">
+                <!-- 1. Hợp âm Ba -->
+                <div class="theory-card">
+                    <h3 class="text-xl font-black text-emerald-600 mb-6 uppercase tracking-tighter">1. Hợp âm Ba (Triads) & Thể đảo</h3>
+                    <div class="grid md:grid-cols-4 gap-4 mb-8">
+                        <div class="p-4 border rounded-xl text-center"><b>Major (Trưởng)</b><br><span class="text-xs">Root + M3 + P5</span></div>
+                        <div class="p-4 border rounded-xl text-center"><b>Minor (Thứ)</b><br><span class="text-xs">Root + m3 + P5</span></div>
+                        <div class="p-4 border rounded-xl text-center"><b>Dim (Giảm)</b><br><span class="text-xs">Root + m3 + d5</span></div>
+                        <div class="p-4 border rounded-xl text-center"><b>Aug (Tăng)</b><br><span class="text-xs">Root + M3 + A5</span></div>
+                    </div>
+                    <div class="bg-emerald-50 p-6 rounded-2xl">
+                        <p class="font-bold text-sm mb-2 text-emerald-800 underline">Thể đảo của hợp âm ba:</p>
+                        <ul class="text-xs space-y-2">
+                            <li>• <b>Thể gốc (Position):</b> Nốt gốc (1) ở dưới cùng. (1-3-5)</li>
+                            <li>• <b>Đảo 1 (First Inversion):</b> Nốt bậc 3 ở dưới cùng. (3-5-1). Ký hiệu số: 6.</li>
+                            <li>• <b>Đảo 2 (Second Inversion):</b> Nốt bậc 5 ở dưới cùng. (5-1-3). Ký hiệu số: 6/4.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. Hợp âm Bảy -->
+                <div class="theory-card">
+                    <h3 class="text-xl font-black text-emerald-600 mb-6 uppercase tracking-tighter">2. Hợp âm Bảy (7th Chords) - Bảng đầy đủ</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="p-3">Loại hợp âm</th>
+                                    <th class="p-3">Công thức Quãng</th>
+                                    <th class="p-3">Ký hiệu (C)</th>
+                                    <th class="p-3">Tính chất âm thanh</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="p-3 font-bold">Major 7th</td><td>Trưởng + 7 Trưởng</td><td>Cmaj7, CM7</td><td>Sáng, sang trọng, Jazz</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-3 font-bold">Dominant 7th (Át 7)</td><td>Trưởng + 7 Thứ</td><td>C7</td><td>Căng thẳng, đòi hỏi giải quyết</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-3 font-bold">Minor 7th</td><td>Thứ + 7 Thứ</td><td>Cm7, C-7</td><td>U buồn, hiện đại</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-3 font-bold">Half-Diminished 7th</td><td>Giảm + 7 Thứ</td><td>Cm7b5, Cø</td><td>Bất ổn, tối</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-3 font-bold">Full-Diminished 7th</td><td>Giảm + 7 Giảm</td><td>Cdim7, C°7</td><td>Kịch tính, căng thẳng cực độ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. Công năng -->
+                <div class="bg-slate-900 text-white p-8 rounded-3xl">
+                    <h3 class="text-xl font-black text-emerald-400 mb-6 uppercase tracking-tighter">3. Công năng & Vòng hòa âm (Cadences)</h3>
+                    <div class="grid md:grid-cols-2 gap-8 text-sm">
+                        <div class="space-y-4">
+                            <p class="font-bold border-b border-white/20 pb-2">Hệ thống chức năng nốt/hợp âm:</p>
+                            <ul class="space-y-2 opacity-80">
+                                <li><b>Bậc I:</b> Tonic (Chủ) - Điểm đến ổn định nhất.</li>
+                                <li><b>Bậc IV:</b> Subdominant (Hạ át) - Tạo sự chuyển động ra xa chủ.</li>
+                                <li><b>Bậc V:</b> Dominant (Át) - Tạo sức hút mạnh mẽ quay về Chủ.</li>
+                                <li><b>Bậc vi:</b> Submediant - Thay thế cho Chủ (Kết giả).</li>
+                            </ul>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="font-bold border-b border-white/20 pb-2">Vòng kết (Cadence):</p>
+                            <ul class="space-y-2 opacity-80">
+                                <li>• <b>Perfect Authentic:</b> V - I (Kết trọn vẹn).</li>
+                                <li>• <b>Plagal Cadence:</b> IV - I (Kết "Amen").</li>
+                                <li>• <b>Deceptive Cadence:</b> V - vi (Kết giả, bất ngờ).</li>
+                                <li>• <b>Half Cadence:</b> Dừng ở bậc V (Kết lửng).</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- MỤC 4: PIANO THỰC HÀNH -->
-        <section id="piano" class="content-section">
-            <button onclick="showSection('intro')" class="mb-8 text-indigo-600 font-bold flex items-center gap-2"><i class="fas fa-arrow-left"></i> Quay lại</button>
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-black mb-4 serif italic">Phòng Thực Hành Piano</h2>
-                <p class="text-slate-500 text-sm">Thử nghiệm nốt nhạc ngay trên bàn phím ảo bên dưới.</p>
-            </div>
+        <!-- SECTION III: THUẬT NGỮ Ý ĐẦY ĐỦ -->
+        <section id="terms" class="content-section">
+            <h2 class="text-4xl font-black serif mb-10 border-l-8 border-pink-600 pl-6">III. Thuật ngữ & Sắc thái Ý</h2>
             
-            <div class="piano-container">
-                <div class="piano-keys" id="piano-board"></div>
-            </div>
+            <div class="space-y-12">
+                <!-- Tempo -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-clock text-pink-600"></i> Tốc độ (Tempo)</h3>
+                    <div class="term-grid">
+                        <div class="bg-white p-4 rounded-xl border border-pink-100">
+                            <b class="serif italic text-lg">Grave</b><p class="text-xs text-slate-500">Cực chậm, trang trọng (20-40 BPM)</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-pink-100">
+                            <b class="serif italic text-lg">Largo</b><p class="text-xs text-slate-500">Rất chậm, rộng rãi (40-60 BPM)</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-pink-100">
+                            <b class="serif italic text-lg">Adagio</b><p class="text-xs text-slate-500">Thong thả, chậm (66-76 BPM)</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-pink-100">
+                            <b class="serif italic text-lg">Andante</b><p class="text-xs text-slate-500">Tốc độ bước đi (76-108 BPM)</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-pink-100">
+                            <b class="serif italic text-lg">Allegro</b><p class="text-xs text-slate-500">Nhanh, tươi vui (120-168 BPM)</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-pink-100">
+                            <b class="serif italic text-lg">Presto</b><p class="text-xs text-slate-500">Cực nhanh (168-200 BPM)</p>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="mt-8 p-6 bg-slate-100 rounded-2xl text-center text-xs text-slate-500">
-                Mẹo: Bạn có thể sử dụng các phím chữ cái (A, W, S, E, D, F...) trên bàn phím máy tính để chơi nhạc.
+                <!-- Dynamics -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-volume-up text-pink-600"></i> Cường độ (Dynamics)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 text-center border rounded-xl"><b>pp</b><p class="text-[10px]">Pianissimo (Rất khẽ)</p></div>
+                        <div class="p-4 text-center border rounded-xl"><b>p</b><p class="text-[10px]">Piano (Khẽ)</p></div>
+                        <div class="p-4 text-center border rounded-xl"><b>mp</b><p class="text-[10px]">Mezzo-piano (Khẽ vừa)</p></div>
+                        <div class="p-4 text-center border rounded-xl"><b>mf</b><p class="text-[10px]">Mezzo-forte (Mạnh vừa)</p></div>
+                        <div class="p-4 text-center border rounded-xl"><b>f</b><p class="text-[10px]">Forte (Mạnh)</p></div>
+                        <div class="p-4 text-center border rounded-xl"><b>ff</b><p class="text-[10px]">Fortissimo (Rất mạnh)</p></div>
+                        <div class="p-4 text-center border rounded-xl bg-slate-50"><b>cresc.</b><p class="text-[10px]">Mạnh dần lên</p></div>
+                        <div class="p-4 text-center border rounded-xl bg-slate-50"><b>dim.</b><p class="text-[10px]">Nhỏ dần đi</p></div>
+                    </div>
+                </div>
+
+                <!-- Expression -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-magic text-pink-600"></i> Tính chất biểu cảm</h3>
+                    <div class="term-grid">
+                        <div class="text-sm"><b>Cantabile:</b> Như tiếng hát, mượt mà.</div>
+                        <div class="text-sm"><b>Dolce:</b> Ngọt ngào, dịu dàng.</div>
+                        <div class="text-sm"><b>Maestoso:</b> Trang nghiêm, hùng vĩ.</div>
+                        <div class="text-sm"><b>Agitato:</b> Xao động, cuồng nhiệt.</div>
+                        <div class="text-sm"><b>Espressivo:</b> Rất diễn cảm.</div>
+                        <div class="text-sm"><b>Legato:</b> Chơi liền tiếng, không ngắt.</div>
+                        <div class="text-sm"><b>Staccato:</b> Chơi ngắt âm, nảy.</div>
+                        <div class="text-sm"><b>Sostenuto:</b> Ngân dài, duy trì âm thanh.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PIANO SECTION -->
+        <section id="piano" class="content-section">
+            <div class="piano-container">
+                <div class="text-white text-center mb-8">
+                    <h2 class="text-3xl font-black serif italic">Thực hành Masterclass</h2>
+                    <p class="text-slate-400 text-sm" id="active-note">Nhấn phím hoặc dùng bàn phím máy tính (Q, W, E...)</p>
+                </div>
+                <div class="piano-keys" id="piano-board"></div>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-slate-900 text-white py-12 mt-20">
-        <div class="max-w-6xl mx-auto px-6 text-center">
-            <div class="flex items-center justify-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center"><i class="fas fa-music"></i></div>
-                <h1 class="font-bold text-lg">MUSIC ACADEMY</h1>
-            </div>
-            <p class="text-slate-400 text-sm">Chương trình học nhạc lý cơ bản & hòa âm thực hành dành cho mọi lứa tuổi.</p>
-        </div>
+    <footer class="bg-white border-t border-slate-200 py-12 text-center">
+        <p class="text-slate-400 text-xs uppercase font-black tracking-widest">© 2024 Music Academy Pro - Toàn bộ bản quyền nội dung được bảo lưu</p>
     </footer>
 
     <script>
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(id);
-            if(target) {
-                target.classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            document.getElementById(id).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         const board = document.getElementById('piano-board');
+        const display = document.getElementById('active-note');
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
         const notes = [
+            {n:'C3', k:'q', t:'white'}, {n:'C#3', k:'2', t:'black'},
+            {n:'D3', k:'w', t:'white'}, {n:'D#3', k:'3', t:'black'},
+            {n:'E3', k:'e', t:'white'},
+            {n:'F3', k:'r', t:'white'}, {n:'F#3', k:'5', t:'black'},
+            {n:'G3', k:'t', t:'white'}, {n:'G#3', k:'6', t:'black'},
+            {n:'A3', k:'y', t:'white'}, {n:'A#3', k:'7', t:'black'},
+            {n:'B3', k:'u', t:'white'},
             {n:'C4', k:'a', t:'white'}, {n:'C#4', k:'w', t:'black'},
             {n:'D4', k:'s', t:'white'}, {n:'D#4', k:'e', t:'black'},
-            {n:'E4', k:'d', t:'white'},
-            {n:'F4', k:'f', t:'white'}, {n:'F#4', k:'t', t:'black'},
-            {n:'G4', k:'g', t:'white'}, {n:'G#4', k:'y', t:'black'},
-            {n:'A4', k:'h', t:'white'}, {n:'A#4', k:'u', t:'black'},
-            {n:'B4', k:'j', t:'white'},
-            {n:'C5', k:'k', t:'white'}, {n:'C#5', k:'o', t:'black'},
-            {n:'D5', k:'l', t:'white'}, {n:'D#5', k:'p', t:'black'},
-            {n:'E5', k:';', t:'white'}
+            {n:'E4', k:'d', t:'white'}
         ];
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const freqs = {
-            'C4':261.63, 'C#4':277.18, 'D4':293.66, 'D#4':311.13, 'E4':329.63,
-            'F4':349.23, 'F#4':369.99, 'G4':392, 'G#4':415.3, 'A4':440,
-            'A#4':466.16, 'B4':493.88, 'C5':523.25, 'C#5':554.37, 'D5':587.33,
-            'D#5':622.25, 'E5':659.25
+            'C3':130.81, 'C#3':138.59, 'D3':146.83, 'D#3':155.56, 'E3':164.81, 'F3':174.61, 'F#3':185.00, 'G3':196.00, 'G#3':207.65, 'A3':220.00, 'A#3':233.08, 'B3':246.94,
+            'C4':261.63, 'C#4':277.18, 'D4':293.66, 'D#4':311.13, 'E4':329.63
         };
 
-        function play(freq) {
+        function play(f) {
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.type = 'sine';
-            o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(f, audioCtx.currentTime);
             g.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
             o.connect(g); g.connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + 1.2);
+            o.start(); o.stop(audioCtx.currentTime + 1);
         }
 
         notes.forEach(note => {
-            const el = document.createElement('div');
-            el.className = `key ${note.t}`;
-            el.dataset.note = note.n;
-            el.innerHTML = `<span class="pointer-events-none">${note.k.toUpperCase()}</span>`;
-            const press = () => { play(freqs[note.n]); el.classList.add('pressed'); };
-            const release = () => el.classList.remove('pressed');
-            el.addEventListener('mousedown', press);
-            el.addEventListener('mouseup', release);
-            el.addEventListener('mouseleave', release);
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); press(); });
-            el.addEventListener('touchend', release);
-            board.appendChild(el);
+            const keyEl = document.createElement('div');
+            keyEl.className = `key ${note.t}`;
+            keyEl.dataset.note = note.n;
+            if(note.t === 'white') keyEl.innerHTML = `<span class='opacity-30'>${note.n}</span>`;
+            
+            const p = () => { play(freqs[note.n]); keyEl.classList.add('pressed'); display.innerText = "Nốt: " + note.n; };
+            const r = () => keyEl.classList.remove('pressed');
+
+            keyEl.onmousedown = p; keyEl.onmouseup = r; keyEl.onmouseleave = r;
+            board.appendChild(keyEl);
         });
 
-        window.addEventListener('keydown', (e) => {
-            const n = notes.find(x => x.k === e.key.toLowerCase());
-            if(n) {
-                const keyEl = document.querySelector(`[data-note="${n.n}"]`);
-                if(keyEl && !keyEl.classList.contains('pressed')) { play(freqs[n.n]); keyEl.classList.add('pressed'); }
+        window.onkeydown = (e) => {
+            const m = notes.find(n => n.k === e.key.toLowerCase());
+            if(m) { 
+                const el = document.querySelector(`[data-note="${m.n}"]`);
+                play(freqs[m.n]); el.classList.add('pressed');
             }
-        });
-        window.addEventListener('keyup', (e) => {
-            const n = notes.find(x => x.k === e.key.toLowerCase());
-            if(n) {
-                const keyEl = document.querySelector(`[data-note="${n.n}"]`);
-                if(keyEl) keyEl.classList.remove('pressed');
-            }
-        });
+        };
+        window.onkeyup = (e) => {
+            const m = notes.find(n => n.k === e.key.toLowerCase());
+            if(m) document.querySelector(`[data-note="${m.n}"]`).classList.remove('pressed');
+        };
     </script>
 </body>
 </html>
