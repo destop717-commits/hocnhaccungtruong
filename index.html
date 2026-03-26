@@ -50,7 +50,7 @@
 </header>
 
 <nav>
-    <button onclick="showTab('piano-tab')" class="active">🎹 Đàn & Trò Chơi</button>
+    <button onclick="showTab('piano-tab', this)" class="active">🎹 Đàn & Trò Chơi</button>
     <button onclick="showTab('dynamics-tab')">🎭 Sắc Thái & Kỹ Năng</button>
     <button onclick="showTab('vocal-tab')">🎤 Thanh Nhạc Học</button>
     <button onclick="showTab('theory-tab')">📜 Nhạc Lý Chuyên Sâu</button>
@@ -61,20 +61,10 @@
         <div class="piano-outer">
             <div id="game-msg" style="color:var(--accent); font-weight:bold; margin-bottom:10px;">Luyện tai nghe nhạc viện</div>
             <button onclick="startEarTest()" style="padding: 10px 20px; cursor:pointer; font-weight:bold; border-radius:8px; border:none; background:var(--secondary); color:white; margin-bottom:15px;">Phát nốt ngẫu nhiên</button>
-            <div class="piano">
-                <div class="key white-key" data-note="C" data-freq="261.63">C</div>
-                <div class="key black-key" style="left: 70px;" data-note="C#" data-freq="277.18">C#</div>
-                <div class="key white-key" data-note="D" data-freq="293.66">D</div>
-                <div class="key black-key" style="left: 140px;" data-note="D#" data-freq="311.13">D#</div>
-                <div class="key white-key" data-note="E" data-freq="329.63">E</div>
-                <div class="key white-key" data-note="F" data-freq="349.23">F</div>
-                <div class="key black-key" style="left: 280px;" data-note="F#" data-freq="369.99">F#</div>
-                <div class="key white-key" data-note="G" data-freq="392.00">G</div>
-                <div class="key black-key" style="left: 350px;" data-note="G#" data-freq="415.30">G#</div>
-                <div class="key white-key" data-note="A" data-freq="440.00">A</div>
-                <div class="key black-key" style="left: 420px;" data-note="A#" data-freq="466.16">A#</div>
-                <div class="key white-key" data-note="B" data-freq="493.88">B</div>
-                <div class="key white-key" data-note="C5" data-freq="523.25">C5</div>
+
+<br>
+<button onclick="showTheory()">📘 Học lý thuyết</button>
+<button onclick="testMove()">🎯 Test đọc nốt</button>
             </div>
         </div>
         <div class="card">
@@ -83,70 +73,118 @@
         </div>
     </div>
     <script>
-// ===== PIANO LEARNING ASSISTANT (JS VERSION) =====
-class PianoLearningAssistant {
-    constructor() {
-        this.notes = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let targetNote = null;
 
-        this.line_notes = ['Mi', 'Sol', 'Si', 'Re', 'Fa'];
-        this.space_notes = ['Fa', 'La', 'Do', 'Mi'];
-    }
-
-    learnTheory() {
-        let output = "=== BƯỚC 1: NỐT TRÊN DÒNG ===\n";
-        this.line_notes.forEach((note, i) => {
-            let distance = i > 0 ? "Cách 1 phím trắng" : "Nốt bắt đầu";
-            output += `Dòng ${i+1}: ${note} -> ${distance}\n`;
-        });
-
-        output += "\n=== BƯỚC 2: NỐT TRONG KHE ===\n";
-        this.space_notes.forEach((note, i) => {
-            let distance = i > 0 ? "Cách 1 phím trắng" : "Nốt bắt đầu";
-            output += `Khe ${i+1}: ${note} -> ${distance}\n`;
-        });
-
-        return output;
-    }
-
-    moveFinger(current, next) {
-        let start = this.notes.indexOf(current);
-        let end = this.notes.indexOf(next);
-
-        if (start === -1 || end === -1) {
-            return "❌ Nốt không hợp lệ!";
-        }
-
-        let steps = end - start;
-
-        let result = `\n[Phân tích]\n${current} → ${next}\n`;
-
-        if (steps > 0) {
-            result += `👉 Đi LÊN ${steps} phím`;
-        } else if (steps < 0) {
-            result += `👉 Đi XUỐNG ${Math.abs(steps)} phím`;
-        } else {
-            result += "👉 Giữ nguyên";
-        }
-
-        return result;
-    }
+function playNote(freq) {
+audioCtx.resume();
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = 'triangle';
+osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+osc.connect(gain); gain.connect(audioCtx.destination);
+osc.start(); osc.stop(audioCtx.currentTime + 1);
 }
 
-// ===== KẾT NỐI VỚI UI =====
+function startEarTest() {
+const keys = document.querySelectorAll('.key');
+const randomKey = keys[Math.floor(Math.random() * keys.length)];
+targetNote = randomKey.dataset.note;
+playNote(randomKey.dataset.freq);
+document.getElementById('game-msg').innerText = "Đang phát... Bấm nốt bạn vừa nghe!";
+}
+
+document.querySelectorAll('.key').forEach(key => {
+key.addEventListener('mousedown', () => {
+playNote(key.dataset.freq);
+key.classList.add('active');
+
+if (targetNote) {
+if (key.dataset.note === targetNote) {
+document.getElementById('game-msg').innerText = "Chính xác! 🎉";
+targetNote = null;
+} else {
+document.getElementById('game-msg').innerText = "Sai rồi! ❌ Đáp án: " + targetNote;
+}
+}
+});
+
+key.addEventListener('mouseup', () => key.classList.remove('active'));
+});
+
+// ===== FIX TAB =====
+function showTab(id, el) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+el.classList.add('active');
+}
+</script>
+
+<script>
+// ===== PIANO AI =====
+class PianoLearningAssistant {
+constructor() {
+this.notes = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+this.line_notes = ['Mi', 'Sol', 'Si', 'Re', 'Fa'];
+this.space_notes = ['Fa', 'La', 'Do', 'Mi'];
+}
+
+learnTheory() {
+let output = "=== BƯỚC 1: NỐT TRÊN DÒNG ===\n";
+this.line_notes.forEach((note, i) => {
+let distance = i > 0 ? "Cách 1 phím trắng" : "Nốt bắt đầu";
+output += `Dòng ${i+1}: ${note} -> ${distance}\n`;
+});
+
+output += "\n=== BƯỚC 2: NỐT TRONG KHE ===\n";
+this.space_notes.forEach((note, i) => {
+let distance = i > 0 ? "Cách 1 phím trắng" : "Nốt bắt đầu";
+output += `Khe ${i+1}: ${note} -> ${distance}\n`;
+});
+
+return output;
+}
+
+moveFinger(current, next) {
+let start = this.notes.indexOf(current);
+let end = this.notes.indexOf(next);
+
+if (start === -1 || end === -1) {
+return "❌ Nốt không hợp lệ!";
+}
+
+let steps = end - start;
+
+let result = `\n[Phân tích]\n${current} → ${next}\n`;
+
+if (steps > 0) {
+result += `👉 Đi LÊN ${steps} phím`;
+} else if (steps < 0) {
+result += `👉 Đi XUỐNG ${Math.abs(steps)} phím`;
+} else {
+result += "👉 Giữ nguyên";
+}
+
+return result;
+}
+}
+
 const pianoAI = new PianoLearningAssistant();
 
-// Hiển thị lý thuyết
 function showTheory() {
-    alert(pianoAI.learnTheory());
+alert(pianoAI.learnTheory());
 }
 
-// Test di chuyển
 function testMove() {
-    let from = prompt("Nhập nốt hiện tại (Do, Re, Mi...)");
-    let to = prompt("Nhập nốt tiếp theo");
-
-    let result = pianoAI.moveFinger(from, to);
-    alert(result);
+let from = prompt("Nhập nốt (Do, Re, Mi...)");
+let to = prompt("Nhập nốt tiếp theo");
+alert(pianoAI.moveFinger(from, to));
+}
+</script>
 }
 </script>
 
