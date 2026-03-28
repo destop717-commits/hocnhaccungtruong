@@ -1,450 +1,597 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Academy Pro - Full Encyclopedia</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
-        
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background-color: #f8fafc;
-            scroll-behavior: smooth;
-        }
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Play, Pause, BookOpen, Award, User, 
+  ChevronRight, Music, Headphones, Flame, 
+  CheckCircle, Gamepad2, LayoutDashboard,
+  RefreshCw, Home, Volume2, Info, Lightbulb,
+  FileText, ListChecks, ArrowRightCircle
+} from 'lucide-react';
 
-        .serif { font-family: 'Playfair Display', serif; }
+// --- DỮ LIỆU LÝ THUYẾT CHI TIẾT ---
+const LESSONS = [
+  { 
+    id: 1, 
+    title: 'Gam Trưởng (Major Scale)', 
+    level: 'Cơ bản', 
+    duration: '10 phút',
+    content: {
+      intro: 'Gam Trưởng (Major Scale) là cấu trúc âm thanh mang tính chất tươi sáng, ổn định và là nền tảng của hầu hết âm nhạc hiện đại.',
+      theory: [
+        'Một Gam Trưởng bao gồm 7 bậc âm (nốt nhạc) khác nhau trước khi quay trở lại nốt gốc ở bát độ cao hơn.',
+        'Khoảng cách giữa các bậc âm được tính bằng "Cung" (W - Whole step) và "Nửa cung" (H - Half step).',
+        'Công thức khoảng cách chuẩn: 1 - 1 - 1/2 - 1 - 1 - 1 - 1/2.',
+        'Bậc quan trọng nhất là bậc I (Chủ âm) và bậc V (Âm át).'
+      ],
+      detailed_rules: [
+        { title: 'Quãng nửa cung (Half Step)', desc: 'Khoảng cách nhỏ nhất giữa hai phím đàn liền kề (ví dụ: E lên F).' },
+        { title: 'Quãng một cung (Whole Step)', desc: 'Gồm hai nửa cung cộng lại (ví dụ: C lên D).' },
+        { title: 'Tên gọi các bậc', desc: 'Bậc I: Tonic, Bậc IV: Subdominant, Bậc V: Dominant.' }
+      ],
+      table: [
+        { step: 'Bậc I - II', dist: '1 Cung', example: 'C - D' },
+        { step: 'Bậc II - III', dist: '1 Cung', example: 'D - E' },
+        { step: 'Bậc III - IV', dist: '1/2 Cung', example: 'E - F' },
+        { step: 'Bậc IV - V', dist: '1 Cung', example: 'F - G' },
+        { step: 'Bậc V - VI', dist: '1 Cung', example: 'G - A' },
+        { step: 'Bậc VI - VII', dist: '1 Cung', example: 'A - B' },
+        { step: 'Bậc VII - I (8)', dist: '1/2 Cung', example: 'B - C' }
+      ],
+      tips: 'Trong Gam Đô Trưởng (C Major), không có dấu thăng (#) hay dấu giáng (b). Ghi nhớ cặp E-F và B-C luôn là nửa cung!'
+    },
+    image: 'https://images.unsplash.com/photo-1520529611404-985222439810?w=800',
+    quizzes: [
+      { q: "Cấu trúc cung của Gam Trưởng là gì?", options: ["1-1-1/2-1-1-1-1/2", "1-1/2-1-1-1-1/2-1", "1-1-1-1/2-1-1-1/2", "1-1/2-1-1-1/2-1-1"], correct: 0 },
+      { q: "Nốt thứ 3 trong gam Đô Trưởng là nốt nào?", options: ["D", "E", "F", "G"], correct: 1 },
+      { q: "Gam Đô Trưởng có bao nhiêu dấu thăng?", options: ["0", "1", "2", "3"], correct: 0 },
+      { q: "Khoảng cách từ nốt E đến F trong gam trưởng là?", options: ["1 cung", "1/2 cung", "2 cung", "1.5 cung"], correct: 1 },
+      { q: "Nốt kết thúc của gam Đô Trưởng (bát độ) là?", options: ["B", "A", "C", "G"], correct: 2 },
+      { q: "Trong gam Sol Trưởng (G Major), nốt nào bị thăng?", options: ["C#", "F#", "G#", "D#"], correct: 1 },
+      { q: "Quãng giữa nốt thứ 7 và nốt thứ 8 của gam trưởng là?", options: ["1 cung", "1/2 cung", "1.5 cung", "2 cung"], correct: 1 },
+      { q: "Tên gọi khác của nốt bậc 1 trong gam là?", options: ["Nốt chủ (Tonic)", "Nốt át (Dominant)", "Nốt dẫn", "Nốt hạ át"], correct: 0 },
+      { q: "Gam trưởng mang sắc thái cảm xúc gì thường thấy?", options: ["Buồn bã", "Vui tươi, sáng sủa", "U tối", "Huyền bí"], correct: 1 },
+      { q: "Nếu bắt đầu từ nốt Re, nốt thứ 2 của gam Re Trưởng là?", options: ["E", "Eb", "F", "F#"], correct: 0 }
+    ]
+  },
+  { 
+    id: 2, 
+    title: 'Hợp âm 3 nốt (Triads)', 
+    level: 'Trung cấp', 
+    duration: '15 phút',
+    content: {
+      intro: 'Hợp âm 3 nốt (Triad) là tổ hợp âm thanh cơ bản nhất tạo nên hòa âm cho một bài hát.',
+      theory: [
+        'Triad được cấu tạo từ 3 nốt: Nốt Gốc (Root), Nốt Bậc 3 (Third) và Nốt Bậc 5 (Fifth).',
+        'Khoảng cách giữa các nốt xác định tính chất của hợp âm (Trưởng, Thứ, Giảm, Tăng).',
+        'Hợp âm Trưởng: Quãng 3 trưởng (4 nửa cung) + Quãng 3 thứ (3 nửa cung).',
+        'Hợp âm Thứ: Quãng 3 thứ (3 nửa cung) + Quãng 3 trưởng (4 nửa cung).'
+      ],
+      detailed_rules: [
+        { title: 'Major Triad (Trưởng)', desc: 'Âm thanh vui tươi. Cấu trúc: 1 - 3 - 5.' },
+        { title: 'Minor Triad (Thứ)', desc: 'Âm thanh u buồn. Cấu trúc: 1 - 3b - 5.' },
+        { title: 'Diminished (Giảm)', desc: 'Âm thanh căng thẳng, hẹp. Cấu trúc: 1 - 3b - 5b.' }
+      ],
+      table: [
+        { type: 'C Major', notes: 'C - E - G', feel: 'Sáng' },
+        { type: 'C Minor', notes: 'C - Eb - G', feel: 'Tối' },
+        { type: 'A Minor', notes: 'A - C - E', feel: 'U sầu' },
+        { type: 'G Major', notes: 'G - B - D', feel: 'Vững chãi' }
+      ],
+      tips: 'Mẹo nhớ nhanh: Hợp âm Thứ chỉ khác hợp âm Trưởng ở duy nhất nốt bậc 3 (thấp hơn nửa cung).'
+    },
+    image: 'https://images.unsplash.com/photo-1552422535-c45813c61732?w=800',
+    quizzes: [
+      { q: "Hợp âm Đô Trưởng (C) gồm những nốt nào?", options: ["C-E-G", "C-Eb-G", "C-E-Gb", "C-F-G"], correct: 0 },
+      { q: "Khoảng cách từ nốt gốc đến nốt bậc 3 trong hợp âm Trưởng là?", options: ["3 nửa cung", "4 nửa cung", "5 nửa cung", "2 nửa cung"], correct: 1 },
+      { q: "Hợp âm Thứ (Minor Triad) khác hợp âm Trưởng ở nốt nào?", options: ["Nốt gốc", "Nốt bậc 3", "Nốt bậc 5", "Không khác"], correct: 1 },
+      { q: "Hợp âm La Thứ (Am) gồm nốt nào?", options: ["A-C-E", "A-C#-E", "A-C-Eb", "A-B-E"], correct: 0 },
+      { q: "Nốt bậc 5 trong hợp âm Sol Trưởng (G) là?", options: ["B", "C", "D", "E"], correct: 2 },
+      { q: "Hợp âm Diminished (Giảm) có cấu trúc nốt bậc 5 như thế nào?", options: ["5 đúng", "5 giảm (giảm 1/2 cung)", "5 tăng", "Không có bậc 5"], correct: 1 },
+      { q: "Ký hiệu 'm' sau tên nốt (vd: Dm) nghĩa là gì?", options: ["Major (Trưởng)", "Minor (Thứ)", "Middle", "Mixed"], correct: 1 },
+      { q: "Hợp âm Fa Trưởng (F) gồm nốt nào?", options: ["F-A-C", "F-Ab-C", "F-A-D", "F-Bb-C"], correct: 0 },
+      { q: "Hợp âm tăng (Augmented) có nốt bậc 5 như thế nào?", options: ["Giảm 1/2 cung", "Tăng 1/2 cung", "Giữ nguyên", "Bỏ qua"], correct: 1 },
+      { q: "Cấu trúc bán cung của hợp âm Thứ là?", options: ["4 + 3", "3 + 4", "3 + 3", "4 + 4"], correct: 1 }
+    ]
+  },
+  { 
+    id: 3, 
+    title: 'Sắc thái âm nhạc', 
+    level: 'Cơ bản', 
+    duration: '5 phút',
+    content: {
+      intro: 'Sắc thái (Dynamics) là linh hồn của bản nhạc, thể hiện cường độ âm thanh từ cực nhỏ đến cực lớn.',
+      theory: [
+        'Các ký hiệu sắc thái hầu hết bắt nguồn từ thuật ngữ tiếng Ý.',
+        'Sắc thái không cố định mà phụ thuộc vào cảm xúc của người nghệ sĩ.',
+        'Thay đổi sắc thái đột ngột hoặc từ từ tạo ra sự kịch tính cho tác phẩm.'
+      ],
+      detailed_rules: [
+        { title: 'Piano (p)', desc: 'Âm thanh nhỏ, êm ái.' },
+        { title: 'Forte (f)', desc: 'Âm thanh mạnh mẽ, vang dội.' },
+        { title: 'Crescendo', desc: 'Mạnh dần lên.' },
+        { title: 'Decrescendo', desc: 'Nhỏ dần đi.' }
+      ],
+      table: [
+        { symbol: 'pp', term: 'Pianissimo', meaning: 'Rất khẽ' },
+        { symbol: 'mp', term: 'Mezzo Piano', meaning: 'Khẽ vừa' },
+        { symbol: 'mf', term: 'Mezzo Forte', meaning: 'Mạnh vừa' },
+        { symbol: 'ff', term: 'Fortissimo', meaning: 'Rất mạnh' }
+      ],
+      tips: 'Chữ "Mezzo" trong tiếng Ý có nghĩa là "Vừa phải/Trung bình".'
+    },
+    image: 'https://images.unsplash.com/photo-1465821185615-9a4a21292193?w=800',
+    quizzes: [
+      { q: "Ký hiệu 'f' (Forte) nghĩa là gì?", options: ["Khẽ", "Mạnh", "Vừa phải", "Rất mạnh"], correct: 1 },
+      { q: "Ký hiệu 'p' (Piano) nghĩa là gì?", options: ["Khẽ", "Mạnh", "Nhanh", "Chậm"], correct: 0 },
+      { q: "Dấu '<' (Crescendo) yêu cầu người chơi làm gì?", options: ["Nhỏ dần", "Mạnh dần", "Ngắt nốt", "Rung ngón"], correct: 1 },
+      { q: "Thuật ngữ nào nghĩa là 'Rất khẽ'?", options: ["Piano", "Pianissimo", "Mezzo Piano", "Forte"], correct: 1 },
+      { q: "Mezzo Forte (mf) có nghĩa là gì?", options: ["Rất mạnh", "Mạnh vừa", "Khẽ vừa", "Rất khẽ"], correct: 1 },
+      { q: "Dấu '>' (Decrescendo) nghĩa là gì?", options: ["Mạnh dần", "Nhỏ dần", "Nhanh dần", "Chậm dần"], correct: 1 },
+      { q: "Fortissimo ký hiệu là gì?", options: ["f", "ff", "fff", "mf"], correct: 1 },
+      { q: "Sắc thái ảnh hưởng đến yếu tố nào của âm thanh?", options: ["Độ cao", "Cường độ", "Trường độ", "Tần số"], correct: 1 },
+      { q: "Từ 'Dolce' trong bản nhạc thường yêu cầu sắc thái gì?", options: ["Mạnh mẽ", "Ngọt ngào, êm ái", "Dồn dập", "Kinh dị"], correct: 1 },
+      { q: "Staccato nghĩa là gì?", options: ["Hát liền mạch", "Hát ngắt quãng", "Hát rất to", "Hát rất nhỏ"], correct: 1 }
+    ]
+  }
+];
 
-        .content-section {
-            display: none;
-            animation: fadeIn 0.5s ease-out;
-        }
+const PIANO_KEYS = [
+  { label: 'C', freq: 261.63, type: 'white' },
+  { label: 'C#', freq: 277.18, type: 'black' },
+  { label: 'D', freq: 293.66, type: 'white' },
+  { label: 'D#', freq: 311.13, type: 'black' },
+  { label: 'E', freq: 329.63, type: 'white' },
+  { label: 'F', freq: 349.23, type: 'white' },
+  { label: 'F#', freq: 369.99, type: 'black' },
+  { label: 'G', freq: 392.00, type: 'white' },
+  { label: 'G#', freq: 415.30, type: 'black' },
+  { label: 'A', freq: 440.00, type: 'white' },
+  { label: 'A#', freq: 466.16, type: 'black' },
+  { label: 'B', freq: 493.88, type: 'white' },
+];
 
-        .content-section.active {
-            display: block;
-        }
+export default function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedLesson, setSelectedLesson] = useState(LESSONS[0]);
+  const [quizScore, setQuizScore] = useState(0);
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
+  const [quizFinished, setQuizFinished] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(null);
+  const [earTrainingStatus, setEarTrainingStatus] = useState('idle');
+  const [earTrainingTarget, setEarTrainingTarget] = useState(null);
+  
+  const audioCtxRef = useRef(null);
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  const playNote = (freq) => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = audioCtxRef.current;
+    if (ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1);
+  };
 
-        /* Piano Engine */
-        .piano-container {
-            background: linear-gradient(145deg, #0f172a, #1e293b);
-            padding: 3rem 1.5rem;
-            border-radius: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+  const startEarTraining = () => {
+    const randomKey = PIANO_KEYS[Math.floor(Math.random() * PIANO_KEYS.length)];
+    setEarTrainingTarget(randomKey);
+    setEarTrainingStatus('playing');
+    playNote(randomKey.freq);
+    setTimeout(() => setEarTrainingStatus('waiting'), 800);
+  };
 
-        .piano-keys {
-            display: flex;
-            position: relative;
-            background: #111;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 10px 0 #000;
-        }
+  const handleQuizAnswer = (idx) => {
+    const isCorrect = idx === selectedLesson.quizzes[currentQuizIndex].correct;
+    if (isCorrect) setQuizScore(prev => prev + 1);
+    setShowExplanation(isCorrect ? 'correct' : 'wrong');
+    setTimeout(() => {
+      setShowExplanation(null);
+      if (currentQuizIndex < selectedLesson.quizzes.length - 1) {
+        setCurrentQuizIndex(prev => prev + 1);
+      } else {
+        setQuizFinished(true);
+      }
+    }, 1000);
+  };
 
-        .key {
-            border-radius: 0 0 6px 6px;
-            cursor: pointer;
-            transition: all 0.1s;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 12px;
-            font-weight: bold;
-            font-size: 0.65rem;
-            user-select: none;
-        }
-
-        .white { 
-            width: 40px; height: 180px; 
-            background: linear-gradient(to bottom, #fff 0%, #f3f4f6 100%); 
-            z-index: 1; border: 1px solid #d1d5db; margin: 0 1px;
-        }
-        
-        .black { 
-            width: 28px; height: 110px; 
-            background: linear-gradient(to bottom, #334155 0%, #020617 100%); 
-            color: white; margin-left: -14px; margin-right: -14px; 
-            z-index: 2; border-radius: 0 0 4px 4px;
-        }
-
-        .white.pressed { background: #e2e8f0; transform: translateY(2px); box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-        .black.pressed { background: #475569; transform: translateY(2px); }
-
-        .theory-card {
-            @apply bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow;
-        }
-
-        .term-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-    </style>
-</head>
-<body class="text-slate-900">
-
-    <!-- NAVIGATION -->
-    <nav class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="showSection('intro')">
-                <i class="fas fa-music text-indigo-600 text-2xl"></i>
-                <h1 class="font-black text-lg tracking-tighter">MUSIC<span class="text-indigo-600">百科全書</span></h1>
-            </div>
-            <div class="hidden md:flex gap-4 text-[11px] font-black uppercase tracking-widest">
-                <button onclick="showSection('theory')" class="hover:text-indigo-600">Lý thuyết</button>
-                <button onclick="showSection('harmony')" class="hover:text-indigo-600">Hòa âm</button>
-                <button onclick="showSection('terms')" class="hover:text-indigo-600">Thuật ngữ</button>
-                <button onclick="showSection('piano')" class="bg-indigo-600 text-white px-4 py-2 rounded-full">Thực hành</button>
-            </div>
+  const renderDashboard = () => (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black text-white tracking-tight">Music Academy 🎼</h1>
+          <p className="text-gray-400 mt-1">Nền tảng học lý thuyết âm nhạc chuyên sâu và thực hành.</p>
         </div>
-    </nav>
+        <div className="flex items-center gap-3 bg-[#1a1a1a] p-3 rounded-2xl border border-white/5 shadow-xl">
+           <Flame className="text-orange-500 fill-orange-500" />
+           <span className="text-white font-black">7 Ngày Chuỗi Học</span>
+        </div>
+      </header>
 
-    <main class="max-w-6xl mx-auto px-6 py-12">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div 
+          onClick={() => setActiveTab('ear-training')}
+          className="md:col-span-2 bg-gradient-to-br from-purple-700 to-indigo-900 p-8 rounded-[2.5rem] cursor-pointer hover:shadow-purple-500/20 shadow-2xl transition-all group overflow-hidden relative border border-white/10"
+        >
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
+              <Headphones className="text-white" />
+            </div>
+            <h2 className="text-3xl font-black text-white mb-2">Luyện nghe (Ear Training)</h2>
+            <p className="text-purple-100 mb-6 max-w-md">Nâng cao khả năng cảm âm bằng cách nhận diện các nốt nhạc đơn lẻ. Một kỹ năng không thể thiếu của nhạc công chuyên nghiệp.</p>
+            <button className="bg-white text-purple-900 px-8 py-3 rounded-full font-black uppercase tracking-widest text-xs shadow-lg group-hover:scale-105 transition-transform">Bắt đầu ngay</button>
+          </div>
+          <Volume2 className="absolute -bottom-8 -right-8 w-48 h-48 text-white/10 group-hover:rotate-12 transition-transform duration-700" />
+        </div>
         
-        <!-- INTRO SECTION -->
-        <section id="intro" class="content-section active">
-            <div class="text-center py-20">
-                <h2 class="text-6xl font-black serif italic mb-6">Kiến thức âm nhạc <span class="text-indigo-600">không giới hạn.</span></h2>
-                <p class="text-slate-500 text-xl max-w-2xl mx-auto mb-10">Tài liệu tổng hợp chi tiết nhất về nhạc lý cổ điển và hiện đại, thiết kế dành cho người tự học và nghiên cứu chuyên sâu.</p>
-                <div class="flex justify-center gap-4">
-                    <button onclick="showSection('theory')" class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold">Khám phá ngay</button>
-                </div>
+        <div className="bg-[#1a1a1a] p-8 rounded-[2.5rem] border border-gray-800 flex flex-col justify-center items-center text-center shadow-xl">
+           <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mb-4 border border-cyan-500/20">
+              <Award className="text-cyan-400" size={40} />
+           </div>
+           <h3 className="text-white font-black text-xl mb-1">Cấp độ 2</h3>
+           <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-4">Sơ cấp thanh nhạc</p>
+           <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
+              <div className="bg-cyan-500 h-full w-2/3 rounded-full"></div>
+           </div>
+        </div>
+      </section>
+
+      <section className="space-y-6">
+        <h2 className="text-2xl font-black text-white flex items-center gap-3">
+          <div className="w-2 h-8 bg-purple-600 rounded-full"></div>
+          Lộ trình lý thuyết
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {LESSONS.map(l => (
+            <div 
+              key={l.id} 
+              onClick={() => { setSelectedLesson(l); setActiveTab('learn'); }}
+              className="bg-[#1a1a1a] p-6 rounded-[2rem] border border-gray-800 hover:border-purple-500/50 cursor-pointer transition-all group shadow-lg"
+            >
+              <div className="rounded-2xl overflow-hidden h-40 mb-4">
+                <img src={l.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={l.title} />
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">{l.level}</span>
+                <span className="text-[10px] text-gray-500 font-bold">{l.duration}</span>
+              </div>
+              <h4 className="text-white font-black text-lg mb-2">{l.title}</h4>
+              <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">{l.content.intro}</p>
             </div>
-        </section>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 
-        <!-- SECTION I: LÝ THUYẾT CHI TIẾT -->
-        <section id="theory" class="content-section">
-            <h2 class="text-4xl font-black serif mb-10 border-l-8 border-indigo-600 pl-6">I. Nhạc lý Nâng cao</h2>
-            
-            <div class="space-y-10">
-                <!-- 1. Cao độ -->
-                <div class="theory-card">
-                    <h3 class="text-xl font-black text-indigo-600 mb-4 uppercase tracking-tighter">1. Cao độ & Hệ thống ký hiệu</h3>
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="space-y-3">
-                            <p class="font-bold text-slate-700">1.1. Khuông nhạc & Khóa:</p>
-                            <ul class="text-sm space-y-2 text-slate-600">
-                                <li>• <b>Khóa Sol (Treble Clef):</b> Dành cho âm cao. Nốt G nằm trên dòng kẻ thứ 2.</li>
-                                <li>• <b>Khóa Fa (Bass Clef):</b> Dành cho âm trầm. Nốt F nằm trên dòng kẻ thứ 4.</li>
-                                <li>• <b>Khuông nhạc tổng hợp (Grand Staff):</b> Kết hợp cả hai khóa, dùng cho Piano.</li>
-                            </ul>
-                        </div>
-                        <div class="space-y-3">
-                            <p class="font-bold text-slate-700">1.2. Dấu hóa (Accidentals):</p>
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <div class="p-2 bg-slate-50 rounded"><b>♯ Sharp:</b> Tăng 1/2 cung.</div>
-                                <div class="p-2 bg-slate-50 rounded"><b>♭ Flat:</b> Giảm 1/2 cung.</div>
-                                <div class="p-2 bg-slate-50 rounded"><b>𝄪 Double Sharp:</b> Tăng 1 cung.</div>
-                                <div class="p-2 bg-slate-50 rounded"><b>𝄫 Double Flat:</b> Giảm 1 cung.</div>
-                                <div class="p-2 bg-slate-100 rounded col-span-2"><b>♮ Natural:</b> Hủy bỏ mọi tác dụng dấu hóa trước đó.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  const renderLearn = () => (
+    <div className="animate-in slide-in-from-bottom-8 duration-500 space-y-10 py-4 pb-20">
+      {/* Header Lesson */}
+      <div className="relative rounded-[3rem] overflow-hidden h-80 shadow-2xl border border-white/5">
+         <img src={selectedLesson.image} className="w-full h-full object-cover" alt="" />
+         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-10 flex flex-col justify-end">
+            <span className="bg-purple-600 text-white w-fit px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 shadow-lg">{selectedLesson.level}</span>
+            <h1 className="text-5xl font-black text-white tracking-tighter mb-2">{selectedLesson.title}</h1>
+            <p className="text-white/60 font-bold flex items-center gap-2"><FileText size={18}/> Đọc kỹ lý thuyết trước khi làm bài tập đánh giá.</p>
+         </div>
+      </div>
 
-                <!-- 2. Nhịp thức -->
-                <div class="theory-card">
-                    <h3 class="text-xl font-black text-indigo-600 mb-4 uppercase tracking-tighter">2. Nhịp thức & Tiết tấu (Time Signatures)</h3>
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <div class="p-4 bg-indigo-50 rounded-xl">
-                            <h4 class="font-black text-sm mb-2">Nhịp Đơn (Simple)</h4>
-                            <p class="text-xs text-slate-600">Mỗi phách chia làm 2 phần bằng nhau. <br><br>
-                            <b>2/4:</b> 2 phách (Mạnh - Nhẹ)<br>
-                            <b>3/4:</b> 3 phách (Mạnh - Nhẹ - Nhẹ)<br>
-                            <b>4/4:</b> 4 phách (Mạnh - Nhẹ - Mạnh vừa - Nhẹ)</p>
-                        </div>
-                        <div class="p-4 bg-emerald-50 rounded-xl">
-                            <h4 class="font-black text-sm mb-2">Nhịp Phức (Compound)</h4>
-                            <p class="text-xs text-slate-600">Mỗi phách chia làm 3 phần bằng nhau (nốt móc đơn). <br><br>
-                            <b>6/8:</b> 2 phách chính (Mạnh - Nhẹ)<br>
-                            <b>9/8:</b> 3 phách chính (M - N - N)<br>
-                            <b>12/8:</b> 4 phách chính (M - N - MV - N)</p>
-                        </div>
-                        <div class="p-4 bg-amber-50 rounded-xl">
-                            <h4 class="font-black text-sm mb-2">Nhịp Hỗn Hợp (Odd)</h4>
-                            <p class="text-xs text-slate-600">Sự kết hợp không đều giữa nhịp 2 và 3.<br><br>
-                            <b>5/4:</b> (2+3) hoặc (3+2)<br>
-                            <b>7/4:</b> (3+4) hoặc (4+3)<br>
-                            Tạo cảm giác "khuyết" hoặc thúc giục.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Quãng -->
-                <div class="theory-card">
-                    <h3 class="text-xl font-black text-indigo-600 mb-4 uppercase tracking-tighter">3. Quãng (Intervals)</h3>
-                    <div class="overflow-x-auto text-xs">
-                        <table class="w-full text-left">
-                            <tr class="bg-slate-100 font-bold">
-                                <th class="p-3">Số thứ tự</th>
-                                <th class="p-3">Quãng Thứ (Minor)</th>
-                                <th class="p-3">Quãng Trưởng (Major)</th>
-                                <th class="p-3">Quãng Đúng (Perfect)</th>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-3 font-bold">Bậc 2</td><td class="p-3 italic">1/2 cung (m2)</td><td class="p-3 italic">1 cung (M2)</td><td>-</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-3 font-bold">Bậc 3</td><td class="p-3 italic">1.5 cung (m3)</td><td class="p-3 italic">2 cung (M3)</td><td>-</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-3 font-bold">Bậc 4</td><td>-</td><td>-</td><td class="p-3 italic text-indigo-600 font-bold">2.5 cung (P4)</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-3 font-bold">Bậc 5</td><td>-</td><td>-</td><td class="p-3 italic text-indigo-600 font-bold">3.5 cung (P5)</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-3 font-bold">Bậc 6</td><td class="p-3 italic">4 cung (m6)</td><td class="p-3 italic">4.5 cung (M6)</td><td>-</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-3 font-bold">Bậc 7</td><td class="p-3 italic">5 cung (m7)</td><td class="p-3 italic">5.5 cung (M7)</td><td>-</td>
-                            </tr>
-                        </table>
-                        <p class="mt-4 p-3 bg-red-50 text-red-700 rounded"><b>Quãng Tăng (Augmented) & Giảm (Diminished):</b> Quãng Đúng/Trưởng tăng thêm 1/2 cung = Tăng. Quãng Đúng/Thứ giảm bớt 1/2 cung = Giảm.</p>
-                    </div>
-                </div>
+      <div className="flex flex-col lg:flex-row gap-10">
+        <div className="flex-1 space-y-12">
+          {/* Lý thuyết */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+              <BookOpen className="text-purple-500" size={28}/>
+              <h2 className="text-2xl font-black text-white tracking-tight">Kiến thức nền tảng</h2>
             </div>
-        </section>
-
-        <!-- SECTION II: HÒA ÂM HỌC CHI TIẾT -->
-        <section id="harmony" class="content-section">
-            <h2 class="text-4xl font-black serif mb-10 border-l-8 border-emerald-600 pl-6">II. Hòa âm & Công năng</h2>
-
-            <div class="space-y-8">
-                <!-- 1. Hợp âm Ba -->
-                <div class="theory-card">
-                    <h3 class="text-xl font-black text-emerald-600 mb-6 uppercase tracking-tighter">1. Hợp âm Ba (Triads) & Thể đảo</h3>
-                    <div class="grid md:grid-cols-4 gap-4 mb-8">
-                        <div class="p-4 border rounded-xl text-center"><b>Major (Trưởng)</b><br><span class="text-xs">Root + M3 + P5</span></div>
-                        <div class="p-4 border rounded-xl text-center"><b>Minor (Thứ)</b><br><span class="text-xs">Root + m3 + P5</span></div>
-                        <div class="p-4 border rounded-xl text-center"><b>Dim (Giảm)</b><br><span class="text-xs">Root + m3 + d5</span></div>
-                        <div class="p-4 border rounded-xl text-center"><b>Aug (Tăng)</b><br><span class="text-xs">Root + M3 + A5</span></div>
-                    </div>
-                    <div class="bg-emerald-50 p-6 rounded-2xl">
-                        <p class="font-bold text-sm mb-2 text-emerald-800 underline">Thể đảo của hợp âm ba:</p>
-                        <ul class="text-xs space-y-2">
-                            <li>• <b>Thể gốc (Position):</b> Nốt gốc (1) ở dưới cùng. (1-3-5)</li>
-                            <li>• <b>Đảo 1 (First Inversion):</b> Nốt bậc 3 ở dưới cùng. (3-5-1). Ký hiệu số: 6.</li>
-                            <li>• <b>Đảo 2 (Second Inversion):</b> Nốt bậc 5 ở dưới cùng. (5-1-3). Ký hiệu số: 6/4.</li>
-                        </ul>
-                    </div>
+            <p className="text-gray-300 text-lg leading-relaxed">{selectedLesson.content.intro}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {selectedLesson.content.theory.map((t, i) => (
+                <div key={i} className="bg-[#1a1a1a] p-5 rounded-2xl border border-white/5 flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-black shrink-0">{i+1}</div>
+                  <p className="text-sm text-gray-400 leading-relaxed">{t}</p>
                 </div>
-
-                <!-- 2. Hợp âm Bảy -->
-                <div class="theory-card">
-                    <h3 class="text-xl font-black text-emerald-600 mb-6 uppercase tracking-tighter">2. Hợp âm Bảy (7th Chords) - Bảng đầy đủ</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs">
-                            <thead class="bg-slate-100">
-                                <tr>
-                                    <th class="p-3">Loại hợp âm</th>
-                                    <th class="p-3">Công thức Quãng</th>
-                                    <th class="p-3">Ký hiệu (C)</th>
-                                    <th class="p-3">Tính chất âm thanh</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b">
-                                    <td class="p-3 font-bold">Major 7th</td><td>Trưởng + 7 Trưởng</td><td>Cmaj7, CM7</td><td>Sáng, sang trọng, Jazz</td>
-                                </tr>
-                                <tr class="border-b">
-                                    <td class="p-3 font-bold">Dominant 7th (Át 7)</td><td>Trưởng + 7 Thứ</td><td>C7</td><td>Căng thẳng, đòi hỏi giải quyết</td>
-                                </tr>
-                                <tr class="border-b">
-                                    <td class="p-3 font-bold">Minor 7th</td><td>Thứ + 7 Thứ</td><td>Cm7, C-7</td><td>U buồn, hiện đại</td>
-                                </tr>
-                                <tr class="border-b">
-                                    <td class="p-3 font-bold">Half-Diminished 7th</td><td>Giảm + 7 Thứ</td><td>Cm7b5, Cø</td><td>Bất ổn, tối</td>
-                                </tr>
-                                <tr class="border-b">
-                                    <td class="p-3 font-bold">Full-Diminished 7th</td><td>Giảm + 7 Giảm</td><td>Cdim7, C°7</td><td>Kịch tính, căng thẳng cực độ</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- 3. Công năng -->
-                <div class="bg-slate-900 text-white p-8 rounded-3xl">
-                    <h3 class="text-xl font-black text-emerald-400 mb-6 uppercase tracking-tighter">3. Công năng & Vòng hòa âm (Cadences)</h3>
-                    <div class="grid md:grid-cols-2 gap-8 text-sm">
-                        <div class="space-y-4">
-                            <p class="font-bold border-b border-white/20 pb-2">Hệ thống chức năng nốt/hợp âm:</p>
-                            <ul class="space-y-2 opacity-80">
-                                <li><b>Bậc I:</b> Tonic (Chủ) - Điểm đến ổn định nhất.</li>
-                                <li><b>Bậc IV:</b> Subdominant (Hạ át) - Tạo sự chuyển động ra xa chủ.</li>
-                                <li><b>Bậc V:</b> Dominant (Át) - Tạo sức hút mạnh mẽ quay về Chủ.</li>
-                                <li><b>Bậc vi:</b> Submediant - Thay thế cho Chủ (Kết giả).</li>
-                            </ul>
-                        </div>
-                        <div class="space-y-4">
-                            <p class="font-bold border-b border-white/20 pb-2">Vòng kết (Cadence):</p>
-                            <ul class="space-y-2 opacity-80">
-                                <li>• <b>Perfect Authentic:</b> V - I (Kết trọn vẹn).</li>
-                                <li>• <b>Plagal Cadence:</b> IV - I (Kết "Amen").</li>
-                                <li>• <b>Deceptive Cadence:</b> V - vi (Kết giả, bất ngờ).</li>
-                                <li>• <b>Half Cadence:</b> Dừng ở bậc V (Kết lửng).</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+              ))}
             </div>
-        </section>
+          </section>
 
-        <!-- SECTION III: THUẬT NGỮ Ý ĐẦY ĐỦ -->
-        <section id="terms" class="content-section">
-            <h2 class="text-4xl font-black serif mb-10 border-l-8 border-pink-600 pl-6">III. Thuật ngữ & Sắc thái Ý</h2>
-            
-            <div class="space-y-12">
-                <!-- Tempo -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-clock text-pink-600"></i> Tốc độ (Tempo)</h3>
-                    <div class="term-grid">
-                        <div class="bg-white p-4 rounded-xl border border-pink-100">
-                            <b class="serif italic text-lg">Grave</b><p class="text-xs text-slate-500">Cực chậm, trang trọng (20-40 BPM)</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-pink-100">
-                            <b class="serif italic text-lg">Largo</b><p class="text-xs text-slate-500">Rất chậm, rộng rãi (40-60 BPM)</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-pink-100">
-                            <b class="serif italic text-lg">Adagio</b><p class="text-xs text-slate-500">Thong thả, chậm (66-76 BPM)</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-pink-100">
-                            <b class="serif italic text-lg">Andante</b><p class="text-xs text-slate-500">Tốc độ bước đi (76-108 BPM)</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-pink-100">
-                            <b class="serif italic text-lg">Allegro</b><p class="text-xs text-slate-500">Nhanh, tươi vui (120-168 BPM)</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-pink-100">
-                            <b class="serif italic text-lg">Presto</b><p class="text-xs text-slate-500">Cực nhanh (168-200 BPM)</p>
-                        </div>
-                    </div>
-                </div>
+          {/* Chi tiết hóa */}
+          <section className="space-y-6">
+             <div className="flex items-center gap-3">
+                <ListChecks className="text-cyan-400" size={24}/>
+                <h3 className="text-white text-xl font-black uppercase tracking-widest text-sm">Các quy tắc chi tiết</h3>
+             </div>
+             <div className="grid gap-4">
+                {selectedLesson.content.detailed_rules.map((rule, idx) => (
+                  <div key={idx} className="bg-[#1a1a1a] p-6 rounded-3xl border border-white/5 hover:border-cyan-500/30 transition-all">
+                     <h4 className="text-cyan-400 font-black mb-1">{rule.title}</h4>
+                     <p className="text-gray-400 text-sm">{rule.desc}</p>
+                  </div>
+                ))}
+             </div>
+          </section>
 
-                <!-- Dynamics -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-volume-up text-pink-600"></i> Cường độ (Dynamics)</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="p-4 text-center border rounded-xl"><b>pp</b><p class="text-[10px]">Pianissimo (Rất khẽ)</p></div>
-                        <div class="p-4 text-center border rounded-xl"><b>p</b><p class="text-[10px]">Piano (Khẽ)</p></div>
-                        <div class="p-4 text-center border rounded-xl"><b>mp</b><p class="text-[10px]">Mezzo-piano (Khẽ vừa)</p></div>
-                        <div class="p-4 text-center border rounded-xl"><b>mf</b><p class="text-[10px]">Mezzo-forte (Mạnh vừa)</p></div>
-                        <div class="p-4 text-center border rounded-xl"><b>f</b><p class="text-[10px]">Forte (Mạnh)</p></div>
-                        <div class="p-4 text-center border rounded-xl"><b>ff</b><p class="text-[10px]">Fortissimo (Rất mạnh)</p></div>
-                        <div class="p-4 text-center border rounded-xl bg-slate-50"><b>cresc.</b><p class="text-[10px]">Mạnh dần lên</p></div>
-                        <div class="p-4 text-center border rounded-xl bg-slate-50"><b>dim.</b><p class="text-[10px]">Nhỏ dần đi</p></div>
-                    </div>
-                </div>
+          {/* Bảng tra cứu */}
+          <section className="bg-black/30 rounded-[2.5rem] border border-white/5 overflow-hidden">
+             <div className="p-8 border-b border-white/5 bg-white/5">
+                <h3 className="text-white font-black flex items-center gap-3 uppercase text-xs tracking-[0.2em]"><Info size={18}/> Bảng tra cứu thông tin nhanh</h3>
+             </div>
+             <div className="p-8">
+               <div className="overflow-x-auto">
+                 <table className="w-full text-left">
+                   <thead>
+                     <tr className="text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5">
+                        <th className="pb-4 px-4">{selectedLesson.id === 3 ? 'Ký hiệu' : 'Bậc/Loại'}</th>
+                        <th className="pb-4 px-4">{selectedLesson.id === 3 ? 'Thuật ngữ' : 'Công thức/Nốt'}</th>
+                        <th className="pb-4 px-4">Ý nghĩa/Ví dụ</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-white/5 text-sm">
+                      {selectedLesson.content.table.map((row, i) => (
+                        <tr key={i} className="hover:bg-white/5 transition-colors">
+                           <td className="py-4 px-4 font-black text-white">{row.step || row.type || row.symbol}</td>
+                           <td className="py-4 px-4 text-cyan-400 font-mono italic">{row.dist || row.notes || row.term}</td>
+                           <td className="py-4 px-4 text-gray-500 font-medium italic">{row.example || row.feel || row.meaning}</td>
+                        </tr>
+                      ))}
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+          </section>
 
-                <!-- Expression -->
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-magic text-pink-600"></i> Tính chất biểu cảm</h3>
-                    <div class="term-grid">
-                        <div class="text-sm"><b>Cantabile:</b> Như tiếng hát, mượt mà.</div>
-                        <div class="text-sm"><b>Dolce:</b> Ngọt ngào, dịu dàng.</div>
-                        <div class="text-sm"><b>Maestoso:</b> Trang nghiêm, hùng vĩ.</div>
-                        <div class="text-sm"><b>Agitato:</b> Xao động, cuồng nhiệt.</div>
-                        <div class="text-sm"><b>Espressivo:</b> Rất diễn cảm.</div>
-                        <div class="text-sm"><b>Legato:</b> Chơi liền tiếng, không ngắt.</div>
-                        <div class="text-sm"><b>Staccato:</b> Chơi ngắt âm, nảy.</div>
-                        <div class="text-sm"><b>Sostenuto:</b> Ngân dài, duy trì âm thanh.</div>
-                    </div>
+          {/* Phím đàn thực hành */}
+          <section className="space-y-6">
+             <div className="flex items-center justify-between">
+                <h3 className="text-white font-black flex items-center gap-2 uppercase text-xs tracking-widest"><Music className="text-purple-500" size={18}/> Piano thực hành</h3>
+                <div className="bg-yellow-500/10 px-4 py-2 rounded-xl border border-yellow-500/20 flex items-center gap-2">
+                   <Lightbulb className="text-yellow-500" size={16}/>
+                   <span className="text-[10px] font-bold text-yellow-200/70 italic">Mẹo: {selectedLesson.content.tips}</span>
                 </div>
+             </div>
+             <div className="bg-[#1a1a1a] p-10 rounded-[3rem] border border-white/5 shadow-inner">
+                <div className="flex justify-center h-44 py-4 overflow-x-auto no-scrollbar">
+                   {PIANO_KEYS.map((k, i) => (
+                     <button
+                       key={i}
+                       onClick={() => playNote(k.freq)}
+                       className={`
+                        relative transition-all active:scale-95
+                        ${k.type === 'white' 
+                          ? 'w-12 h-36 bg-white border border-gray-300 z-10 rounded-b-xl hover:bg-gray-100 flex items-end justify-center pb-4 text-black font-black text-xs' 
+                          : 'w-8 h-20 bg-zinc-800 -mx-4 z-20 rounded-b-xl hover:bg-zinc-700 border border-black shadow-2xl'}
+                       `}
+                     >
+                       {k.type === 'white' && k.label}
+                     </button>
+                   ))}
+                </div>
+             </div>
+          </section>
+
+          {/* Nút làm Quiz */}
+          <button 
+            onClick={() => {
+              setQuizFinished(false);
+              setCurrentQuizIndex(0);
+              setQuizScore(0);
+              setActiveTab('quiz');
+            }}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 p-8 rounded-[2rem] text-white font-black text-xl flex items-center justify-center gap-4 transition-all shadow-2xl shadow-purple-600/30 active:scale-95 uppercase tracking-widest"
+          >
+            Sẵn sàng làm Quiz <ArrowRightCircle size={24}/>
+          </button>
+        </div>
+
+        {/* Sidebar Mini */}
+        <div className="lg:w-80 space-y-6">
+           <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] px-4">Bài học khác</h4>
+           <div className="space-y-3">
+              {LESSONS.map(l => (
+                <div 
+                  key={l.id} 
+                  onClick={() => setSelectedLesson(l)}
+                  className={`flex items-center gap-4 p-5 rounded-3xl cursor-pointer transition-all border ${l.id === selectedLesson.id ? 'bg-purple-600 text-white border-purple-400' : 'bg-[#1a1a1a] border-white/5 text-gray-500 hover:text-white'}`}
+                >
+                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${l.id === selectedLesson.id ? 'bg-white text-purple-600' : 'bg-gray-800'}`}>{l.id}</div>
+                   <span className="font-black text-sm">{l.title}</span>
+                </div>
+              ))}
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderQuiz = () => {
+    if (quizFinished) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 animate-in zoom-in-95 duration-500 text-center space-y-10">
+          <div className="w-56 h-56 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 p-2 flex items-center justify-center shadow-2xl shadow-purple-600/20">
+             <div className="w-full h-full bg-[#0a0a0a] rounded-full flex flex-col items-center justify-center">
+                <Award className="text-yellow-400 w-20 h-20 mb-2" />
+                <span className="text-5xl font-black text-white">{quizScore}/10</span>
+             </div>
+          </div>
+          <div>
+            <h2 className="text-4xl font-black text-white tracking-tighter mb-2">Hoàn thành bài học!</h2>
+            <p className="text-gray-500">Bạn đã nắm vững lý thuyết <strong>{selectedLesson.title}</strong>.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+             <button onClick={() => {setQuizFinished(false); setCurrentQuizIndex(0); setQuizScore(0);}} className="flex-1 bg-[#1a1a1a] p-5 rounded-2xl font-black text-white border border-white/10 hover:bg-[#222]">Làm lại</button>
+             <button onClick={() => setActiveTab('dashboard')} className="flex-1 bg-cyan-500 p-5 rounded-2xl font-black text-black hover:bg-cyan-400">Về Trang Chủ</button>
+          </div>
+        </div>
+      );
+    }
+
+    const question = selectedLesson.quizzes[currentQuizIndex];
+    return (
+      <div className="max-w-3xl mx-auto py-10 space-y-8 animate-in slide-in-from-right-8 duration-500">
+        <div className="flex items-end justify-between">
+           <div>
+              <p className="text-purple-400 font-black text-[10px] uppercase tracking-widest mb-1">{selectedLesson.title}</p>
+              <h2 className="text-3xl font-black text-white">Câu hỏi {currentQuizIndex + 1}/10</h2>
+           </div>
+           <div className="text-gray-500 text-sm font-bold uppercase tracking-widest">Đúng: {quizScore}</div>
+        </div>
+        <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden p-0.5">
+           <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-300" style={{width: `${(currentQuizIndex + 1) * 10}%`}}></div>
+        </div>
+
+        <div className="bg-[#1a1a1a] p-12 rounded-[3.5rem] border border-gray-800 shadow-2xl relative overflow-hidden">
+          {showExplanation && (
+             <div className={`absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm transition-all ${showExplanation === 'correct' ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                <div className={`px-10 py-5 rounded-2xl font-black text-xl shadow-2xl animate-bounce ${showExplanation === 'correct' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                   {showExplanation === 'correct' ? 'CHÍNH XÁC! ✨' : 'TIẾC QUÁ, SAI RỒI... ❌'}
+                </div>
+             </div>
+          )}
+          <h3 className="text-2xl font-black text-white mb-10 leading-tight">{question.q}</h3>
+          <div className="grid grid-cols-1 gap-4">
+             {question.options.map((opt, i) => (
+               <button 
+                 key={i} 
+                 disabled={showExplanation !== null}
+                 onClick={() => handleQuizAnswer(i)}
+                 className="group flex items-center gap-6 p-6 rounded-3xl bg-[#222] border border-white/5 hover:border-purple-500 text-left transition-all active:scale-95"
+               >
+                 <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center font-black text-gray-500 group-hover:bg-purple-600 group-hover:text-white transition-colors">{String.fromCharCode(65 + i)}</div>
+                 <span className="text-white font-bold">{opt}</span>
+               </button>
+             ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEarTraining = () => (
+    <div className="max-w-4xl mx-auto py-10 space-y-10 animate-in slide-in-from-bottom-8 duration-500">
+       <div className="text-center space-y-3">
+          <h1 className="text-5xl font-black text-white tracking-tighter">Ear Training Lab</h1>
+          <p className="text-gray-400 text-lg">Nghe âm thanh và đoán đúng nốt nhạc. Kỹ năng quan trọng cho mọi nhạc công.</p>
+       </div>
+
+       <div className="bg-[#1a1a1a] p-16 rounded-[4rem] border border-gray-800 text-center shadow-2xl space-y-12">
+          {earTrainingStatus === 'idle' ? (
+            <button onClick={startEarTraining} className="bg-white text-black px-12 py-6 rounded-full font-black text-xl hover:bg-cyan-400 transition-all shadow-xl active:scale-95 uppercase tracking-widest">Bắt đầu thử thách</button>
+          ) : (
+            <div className="space-y-12">
+               <div className={`w-32 h-32 rounded-[2.5rem] mx-auto flex items-center justify-center transition-all ${earTrainingStatus === 'playing' ? 'bg-cyan-400 animate-pulse scale-110' : 'bg-gray-800'}`}>
+                  <Volume2 size={48} className={earTrainingStatus === 'playing' ? 'text-black' : 'text-gray-600'}/>
+               </div>
+               
+               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                  {PIANO_KEYS.map(k => (
+                    <button
+                      key={k.label}
+                      onClick={() => {
+                        if (earTrainingStatus !== 'waiting') return;
+                        if (k.label === earTrainingTarget.label) {
+                          setEarTrainingStatus('correct');
+                          setTimeout(() => startEarTraining(), 1200);
+                        } else {
+                          setEarTrainingStatus('wrong');
+                          setTimeout(() => setEarTrainingStatus('waiting'), 800);
+                        }
+                      }}
+                      className={`h-16 rounded-2xl font-black transition-all border-2 ${earTrainingStatus === 'correct' && k.label === earTrainingTarget.label ? 'bg-green-500 border-green-400 text-white scale-110' : 'bg-[#222] border-white/5 text-white hover:border-cyan-400'}`}
+                    >
+                      {k.label}
+                    </button>
+                  ))}
+               </div>
+
+               <div className="h-10 text-xl font-black">
+                 {earTrainingStatus === 'correct' && <span className="text-green-400 animate-bounce block">CHÍNH XÁC! 🎹</span>}
+                 {earTrainingStatus === 'wrong' && <span className="text-red-400 block">THỬ LẠI NÀO... 🎵</span>}
+                 {earTrainingStatus === 'waiting' && <span className="text-gray-500 text-xs uppercase tracking-widest block">Chọn nốt bạn vừa nghe được</span>}
+               </div>
+
+               <div className="flex justify-center gap-6">
+                 <button onClick={() => playNote(earTrainingTarget.freq)} className="bg-white/5 px-6 py-3 rounded-full text-xs font-black flex items-center gap-2 hover:bg-white/10 text-white"><RefreshCw size={14}/> NGHE LẠI</button>
+                 <button onClick={() => setActiveTab('dashboard')} className="text-gray-500 text-xs font-black uppercase hover:text-white">DỪNG LẠI</button>
+               </div>
             </div>
-        </section>
+          )}
+       </div>
+    </div>
+  );
 
-        <!-- PIANO SECTION -->
-        <section id="piano" class="content-section">
-            <div class="piano-container">
-                <div class="text-white text-center mb-8">
-                    <h2 class="text-3xl font-black serif italic">Thực hành Masterclass</h2>
-                    <p class="text-slate-400 text-sm" id="active-note">Nhấn phím hoặc dùng bàn phím máy tính (Q, W, E...)</p>
-                </div>
-                <div class="piano-keys" id="piano-board"></div>
-            </div>
-        </section>
+  return (
+    <div className="flex h-screen bg-[#0a0a0a] text-gray-200 overflow-hidden font-sans selection:bg-purple-600 selection:text-white">
+      {/* Desktop Sidebar */}
+      <nav className="hidden lg:flex flex-col w-80 bg-[#111] border-r border-white/5 p-8 space-y-10">
+        <div className="flex items-center gap-4 px-2" onClick={() => setActiveTab('dashboard')}>
+          <div className="bg-gradient-to-tr from-purple-600 to-blue-500 p-3 rounded-2xl shadow-2xl">
+            <Music className="text-white" size={28}/>
+          </div>
+          <div>
+            <span className="text-2xl font-black tracking-tighter text-white uppercase italic block leading-none">Music Lab</span>
+            <span className="text-[10px] text-gray-600 font-black uppercase tracking-widest">Học nhạc miễn phí</span>
+          </div>
+        </div>
 
-    </main>
+        <div className="space-y-2">
+          <NavItem active={activeTab === 'dashboard'} icon={<LayoutDashboard size={20}/>} label="Trang Chủ" onClick={() => setActiveTab('dashboard')} />
+          <NavItem active={activeTab === 'learn' || activeTab === 'quiz'} icon={<BookOpen size={20}/>} label="Lý Thuyết & Quiz" onClick={() => setActiveTab('learn')} />
+          <NavItem active={activeTab === 'ear-training'} icon={<Headphones size={20}/>} label="Ear Training" onClick={() => setActiveTab('ear-training')} />
+        </div>
 
-    <footer class="bg-white border-t border-slate-200 py-12 text-center">
-        <p class="text-slate-400 text-xs uppercase font-black tracking-widest">© 2024 Music Academy Pro - Toàn bộ bản quyền nội dung được bảo lưu</p>
-    </footer>
+        <div className="mt-auto bg-gradient-to-br from-[#1a1a1a] to-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+           <div className="flex items-center gap-4 mb-6">
+             <div className="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-black font-black text-xl">2</div>
+             <div>
+               <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">Cấp độ</p>
+               <p className="text-lg font-black text-white leading-none">Sơ cấp</p>
+             </div>
+           </div>
+           <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden mb-2">
+             <div className="bg-cyan-500 h-full w-2/3 rounded-full"></div>
+           </div>
+           <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest text-right">650 / 1000 XP</p>
+        </div>
+      </nav>
 
-    <script>
-        function showSection(id) {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto p-6 md:p-14 pb-32 md:pb-14 scroll-smooth">
+        <div className="max-w-6xl mx-auto">
+          {activeTab === 'dashboard' && renderDashboard()}
+          {activeTab === 'learn' && renderLearn()}
+          {activeTab === 'quiz' && renderQuiz()}
+          {activeTab === 'ear-training' && renderEarTraining()}
+        </div>
+      </main>
 
-        const board = document.getElementById('piano-board');
-        const display = document.getElementById('active-note');
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      {/* Mobile Nav */}
+      <div className="lg:hidden fixed bottom-6 left-6 right-6 bg-[#1a1a1a]/95 backdrop-blur-2xl border border-white/10 p-4 rounded-[2.5rem] flex justify-around shadow-2xl z-50">
+        <button onClick={() => setActiveTab('dashboard')} className={`p-4 rounded-2xl transition-all ${activeTab === 'dashboard' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-500'}`}><LayoutDashboard size={22}/></button>
+        <button onClick={() => setActiveTab('learn')} className={`p-4 rounded-2xl transition-all ${activeTab === 'learn' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-500'}`}><BookOpen size={22}/></button>
+        <button onClick={() => setActiveTab('ear-training')} className={`p-4 rounded-2xl transition-all ${activeTab === 'ear-training' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-500'}`}><Headphones size={22}/></button>
+      </div>
+    </div>
+  );
+}
 
-        const notes = [
-            {n:'C3', k:'q', t:'white'}, {n:'C#3', k:'2', t:'black'},
-            {n:'D3', k:'w', t:'white'}, {n:'D#3', k:'3', t:'black'},
-            {n:'E3', k:'e', t:'white'},
-            {n:'F3', k:'r', t:'white'}, {n:'F#3', k:'5', t:'black'},
-            {n:'G3', k:'t', t:'white'}, {n:'G#3', k:'6', t:'black'},
-            {n:'A3', k:'y', t:'white'}, {n:'A#3', k:'7', t:'black'},
-            {n:'B3', k:'u', t:'white'},
-            {n:'C4', k:'a', t:'white'}, {n:'C#4', k:'w', t:'black'},
-            {n:'D4', k:'s', t:'white'}, {n:'D#4', k:'e', t:'black'},
-            {n:'E4', k:'d', t:'white'}
-        ];
-
-        const freqs = {
-            'C3':130.81, 'C#3':138.59, 'D3':146.83, 'D#3':155.56, 'E3':164.81, 'F3':174.61, 'F#3':185.00, 'G3':196.00, 'G#3':207.65, 'A3':220.00, 'A#3':233.08, 'B3':246.94,
-            'C4':261.63, 'C#4':277.18, 'D4':293.66, 'D#4':311.13, 'E4':329.63
-        };
-
-        function play(f) {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const o = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            o.type = 'triangle';
-            o.frequency.setValueAtTime(f, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + 1);
-        }
-
-        notes.forEach(note => {
-            const keyEl = document.createElement('div');
-            keyEl.className = `key ${note.t}`;
-            keyEl.dataset.note = note.n;
-            if(note.t === 'white') keyEl.innerHTML = `<span class='opacity-30'>${note.n}</span>`;
-            
-            const p = () => { play(freqs[note.n]); keyEl.classList.add('pressed'); display.innerText = "Nốt: " + note.n; };
-            const r = () => keyEl.classList.remove('pressed');
-
-            keyEl.onmousedown = p; keyEl.onmouseup = r; keyEl.onmouseleave = r;
-            board.appendChild(keyEl);
-        });
-
-        window.onkeydown = (e) => {
-            const m = notes.find(n => n.k === e.key.toLowerCase());
-            if(m) { 
-                const el = document.querySelector(`[data-note="${m.n}"]`);
-                play(freqs[m.n]); el.classList.add('pressed');
-            }
-        };
-        window.onkeyup = (e) => {
-            const m = notes.find(n => n.k === e.key.toLowerCase());
-            if(m) document.querySelector(`[data-note="${m.n}"]`).classList.remove('pressed');
-        };
-    </script>
-</body>
-</html>
+function NavItem({ active, icon, label, onClick }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`
+        w-full flex items-center gap-5 px-6 py-4 rounded-[1.5rem] transition-all duration-300
+        ${active ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-600/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}
+      `}
+    >
+      <span className={active ? 'text-white' : 'text-gray-500'}>{icon}</span>
+      <span className="font-black text-sm tracking-tight">{label}</span>
+      {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_white]"></div>}
+    </button>
+  );
+}
